@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-[#BDA08C] min-h-screen flex justify-end">
+    <div class="min-h-screen flex justify-end bg-[url('/BGlogin.png')] bg-cover bg-center">
         <div class="bg-[#F0E7D7] min-h-screen w-1/2 p-10 flex justify-center">
             
             <!-- กล่องเนื้อหา -->
@@ -15,7 +15,7 @@
 
                 <!-- ช่องรับข้อมูล -->
                 <div class="space-y-4">
-                    <div class="mt-8">
+                    <div class="mt-6">
                         <label class="block text-sm mb-2 font-bold">บัญชีผู้ใช้</label>
                         <input
                             type="text"
@@ -23,7 +23,7 @@
                         />
                     </div>
 
-                    <div class="mt-8">
+                    <div class="mt-6">
                         <label class="block text-sm mb-2 font-bold">อีเมล</label>
                         <input
                             type="text"
@@ -31,7 +31,7 @@
                         />
                     </div>
 
-                    <div class="mt-8">
+                    <div class="mt-6">
                         <label class="block text-sm font-bold mb-2">รหัสผ่าน</label>
                         <input
                             type="password"
@@ -39,7 +39,7 @@
                         />
                     </div>
 
-                    <div class="mt-8">
+                    <div class="mt-6">
                         <label class="block text-sm font-bold mb-2">ยืนยันรหัสผ่าน</label>
                         <input
                             type="password"
@@ -47,7 +47,7 @@
                         />
                     </div>
 
-                    <RouterLink to="/login" class="block w-full py-3 rounded-lg bg-green-500 text-black text-lg font-semibold hover:bg-green-600 transition mt-12 text-center">
+                    <RouterLink to="/login" class="block w-full py-3 rounded-lg bg-green-500 text-black text-lg font-semibold hover:bg-green-600 transition mt-10 text-center">
                         ยืนยัน
                     </RouterLink>
 

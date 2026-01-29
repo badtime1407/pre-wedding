@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-[#BDA08C] min-h-screen flex justify-end">
+    <div class="min-h-screen flex justify-end bg-[url('/BGlogin.png')] bg-cover bg-center">
         <div class="bg-[#F0E7D7] min-h-screen w-1/2 p-10 flex justify-center">
             
             <!-- กล่องเนื้อหา -->
