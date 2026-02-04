@@ -1,12 +1,39 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from "vue"
+
+const images = [
+  "/poster1.png",
+  "/poster2.png",
+  "/poster3.png"
+]
+
+const currentIndex = ref(0)
+let interval = null
+
+onMounted(() => {
+  interval = setInterval(() => {
+    currentIndex.value =
+      (currentIndex.value + 1) % images.length
+  }, 4000)
+})
+
+onUnmounted(() => {
+  clearInterval(interval)
+})
+</script>
+
 <template>
-    
-  <section class="p-10">
-    <h1 class="text-4xl font-bold">
-      ณ บางรัก สตูดิโอ นครสวรรค์
-    </h1>
-    <p class="mt-4">
-      บริการถ่ายภาพ Pre-Wedding ครบวงจร
-    </p>
+
+  <section class="relative w-full h-screen overflow-hidden mt-16">
+
+    <img
+      v-for="(img, index) in images"
+      :key="index"
+      :src="img"
+      class="absolute inset-0 w-full h-100 object-cover transition-opacity duration-1000"
+      :class="index === currentIndex ? 'opacity-100' : 'opacity-0'"
+    />
+
   </section>
 
 </template>
