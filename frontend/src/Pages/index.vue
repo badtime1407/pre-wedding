@@ -50,6 +50,15 @@ onMounted(() => {
 onUnmounted(() => {
   clearInterval(intervalId)
 })
+
+const gallery = [
+  "/Pic1.png",
+  "/Pic2.png",
+  "/Pic3.png",
+  "/Pic4.png",
+  "/Pic5.png",
+  "/Pic6.png",
+]
 </script>
 
 <template>
@@ -102,7 +111,7 @@ onUnmounted(() => {
       <div class="grid grid-cols-2 gap-20 max-w-6xl mx-auto px-2">
 
         <!-- Card 1 -->
-        <div class="bg-[#D9D9D9] shadow-lg  rounded-lg overflow-hidden hover:shadow-xl transition">
+        <div class="bg-[#F0E7D7] shadow-lg  rounded-lg overflow-hidden hover:shadow-xl transition">
           <img src="/service1.png" class="w-full h-65 object-cover"/>
 
           <div class="p-4 text-center">
@@ -110,12 +119,12 @@ onUnmounted(() => {
               แพ็กเกจ Pre-wedding
             </p>
 
-            <router-link to="/packagespre-wedding" class="mt-3 inline-block bg-gray-200 px-4 py-1 rounded hover:bg-gray-300">รายละเอียด</router-link>
+            <router-link to="/packagespre-wedding" class="mt-3 inline-block bg-white px-4 py-1 rounded hover:bg-gray-300">รายละเอียด</router-link>
           </div>
         </div>
 
         <!-- Card 2 -->
-        <div class="bg-[#D9D9D9] shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition">
+        <div class="bg-[#F0E7D7] shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition">
           <img src="/service2.png" class="w-full h-65 object-cover"/>
 
           <div class="p-4 text-center">
@@ -123,7 +132,7 @@ onUnmounted(() => {
               แพ็กเกจถ่ายภาพ
             </p>
 
-            <router-link to="/packages" class="mt-3 inline-block bg-gray-200 px-4 py-1 rounded hover:bg-gray-300">รายละเอียด</router-link>
+            <router-link to="/packages" class="mt-3 inline-block bg-white px-4 py-1 rounded hover:bg-gray-300">รายละเอียด</router-link>
           </div>
         </div>
 
@@ -131,10 +140,18 @@ onUnmounted(() => {
 
     </section>
 
-    <div class="">
+    <div class="p-10 mt-8 mb-15">
       <h2 class="text-center text-2xl font-bold mb-14">
         ภาพถ่ายผลงาน
       </h2>
+
+      <div class="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-6">
+
+        <div v-for="(img, i) in gallery" :key="i" class="overflow-hidden rounded-xl shadow-lg">
+          <img :src="img" class="w-full h-[420px] object-cover transition duration-300 hover:scale-105"/>
+        </div>
+
+      </div>
     </div>
 
   </div>

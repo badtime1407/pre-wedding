@@ -1,7 +1,6 @@
 <script setup>
 import { ref, computed } from "vue"
 
-// วันที่วันนี้
 const today = new Date()
 
 const month = ref(today.getMonth())
@@ -10,20 +9,19 @@ const year = ref(today.getFullYear())
 const selectedDate = ref(null)
 const selectedTime = ref(null)
 
-// เวลาที่เปิดจอง
 const times = [
-  "09:30-11:00",
-  "11:30-13:00",
-  "14:00-15:30",
-  "16:00-17:30",
+  "09:30 น. - 11:00 น.",
+  "11:30 น. - 13:00 น.",
+  "14:00 น. - 15:30 น.",
+  "16:00 น. - 17:30 น.",
 ]
 
-// จำนวนวันในเดือน
+// วันในเดือน
 const daysInMonth = computed(() => {
   return new Date(year.value, month.value + 1, 0).getDate()
 })
 
-// วันแรกของเดือน
+// วันแรก
 const firstDay = computed(() => {
   return new Date(year.value, month.value, 1).getDay()
 })
@@ -33,18 +31,14 @@ function prevMonth() {
   if (month.value === 0) {
     month.value = 11
     year.value--
-  } else {
-    month.value--
-  }
+  } else month.value--
 }
 
 function nextMonth() {
   if (month.value === 11) {
     month.value = 0
     year.value++
-  } else {
-    month.value++
-  }
+  } else month.value++
 }
 
 // เลือกวัน
@@ -54,82 +48,91 @@ function selectDate(day) {
   ).padStart(2, "0")}-${String(day).padStart(2, "0")}`
 }
 
-// ส่งข้อมูล (ตอนนี้ยังแค่ log)
-async function submitBooking() {
+// ส่ง
+function submitBooking() {
   if (!selectedDate.value || !selectedTime.value) {
     alert("กรุณาเลือกวันและเวลา")
     return
   }
 
-  const bookingData = {
+  console.log({
     date: selectedDate.value,
     time: selectedTime.value,
-  }
-
-  console.log("ข้อมูลที่ส่งไป Backend:", bookingData)
-
-  // 🔴 ตอนหลังแค่เอา comment ออก
-  /*
-  await fetch("http://localhost:8787/booking", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(bookingData),
   })
-  */
 
-  alert("เตรียมส่งข้อมูลเรียบร้อย ✅")
+  alert("บันทึกแล้ว ✅")
 }
 </script>
 
 <template>
-  <div class="max-w-5xl mx-auto py-12">
+  <div class="bg-white p-10">
 
-    <h1 class="text-2xl font-bold text-center mb-10">
+    <!-- หัวข้อ -->
+    <h1 class="text-center text-2xl font-bold mb-12">
       นัดหมายปรึกษา
     </h1>
 
-    <div class="flex justify-center gap-12">
+    <div class="max-w-5xl mx-auto flex justify-center gap-16">
 
       <!-- ปฏิทิน -->
-      <div class="bg-white shadow rounded-xl p-4 w-72">
+      <div
+        class="bg-white rounded-xl border shadow-md p-6 w-80"
+      >
+
+        <p class="mb-3 font-medium">
+          เลือกวันที่
+        </p>
 
         <!-- Header -->
-        <div class="flex justify-between items-center mb-3">
+        <div class="flex justify-between items-center mb-4">
 
-          <button @click="prevMonth">◀</button>
+          <button
+            @click="prevMonth"
+            class="text-xl font-bold"
+          >
+            ‹
+          </button>
 
-          <div class="font-bold">
+          <span class="font-semibold text-lg">
             {{ month + 1 }}/{{ year }}
-          </div>
+          </span>
 
-          <button @click="nextMonth">▶</button>
+          <button
+            @click="nextMonth"
+            class="text-xl font-bold"
+          >
+            ›
+          </button>
 
         </div>
 
-        <!-- ชื่อวัน -->
-        <div class="grid grid-cols-7 text-center text-sm mb-2">
-          <div v-for="d in ['อา','จ','อ','พ','พฤ','ศ','ส']" :key="d">
+        <!-- วัน -->
+        <div
+          class="grid grid-cols-7 text-center text-sm mb-2 text-gray-500"
+        >
+          <div
+            v-for="d in ['จ','อ','พ','พฤ','ศ','ส','อา']"
+            :key="d"
+          >
             {{ d }}
           </div>
         </div>
 
         <!-- วันที่ -->
-        <div class="grid grid-cols-7 gap-1 text-center">
+        <div class="grid grid-cols-7 gap-2">
 
           <div
-            v-for="n in firstDay"
-            :key="'e'+n"
+            v-for="i in firstDay"
+            :key="'e'+i"
           ></div>
 
           <button
             v-for="day in daysInMonth"
             :key="day"
             @click="selectDate(day)"
-            class="py-1 rounded hover:bg-blue-100"
+            class="h-8 rounded-full text-sm hover:bg-gray-200"
             :class="{
-              'bg-blue-500 text-white':
+              'bg-black text-white':
                 selectedDate?.endsWith('-' + String(day).padStart(2,'0'))
             }"
           >
@@ -141,21 +144,22 @@ async function submitBooking() {
       </div>
 
       <!-- เวลา -->
-      <div class="w-64">
+      <div class="w-72">
 
-        <h3 class="font-bold mb-4 text-center">
+        <p class="mb-4 font-medium">
           เลือกเวลา
-        </h3>
+        </p>
 
-        <div class="space-y-3">
+        <div class="space-y-4">
 
           <button
             v-for="time in times"
             :key="time"
             @click="selectedTime = time"
-            class="w-full border py-2 rounded-lg"
+            class="w-full py-3 rounded-xl bg-white border shadow-sm hover:shadow-md"
             :class="{
-              'bg-blue-500 text-white': selectedTime === time
+              'border-black font-semibold':
+                selectedTime === time
             }"
           >
             {{ time }}
@@ -163,9 +167,10 @@ async function submitBooking() {
 
         </div>
 
+        <!-- ปุ่มยืนยัน -->
         <button
           @click="submitBooking"
-          class="w-full mt-6 bg-green-500 text-white py-2 rounded-lg"
+          class="w-full mt-8 py-3 rounded-xl bg-[#e7dcc7] font-medium hover:opacity-80"
         >
           ยืนยัน
         </button>
