@@ -125,7 +125,7 @@ const gallery = [
 
         <!-- Card 2 -->
         <div class="bg-[#F0E7D7] shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition">
-          <img src="/service2.png" class="w-full h-65 object-cover"/>
+          <img src="/Pic17.png" class="w-full h-65 object-cover"/>
 
           <div class="p-4 text-center">
             <p class="font-medium">
