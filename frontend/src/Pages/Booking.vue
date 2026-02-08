@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from "vue"
 
+// ตัวแปรวันที่
 const today = new Date()
 
 const month = ref(today.getMonth())
@@ -9,6 +10,7 @@ const year = ref(today.getFullYear())
 const selectedDate = ref(null)
 const selectedTime = ref(null)
 
+//เวลา
 const times = [
   "09:30 น. - 11:00 น.",
   "11:30 น. - 13:00 น.",
@@ -16,15 +18,18 @@ const times = [
   "16:00 น. - 17:30 น.",
 ]
 
-// วันในเดือน
+//Popup
+const showSuccess = ref(false)
+
+//คำนวณวัน
 const daysInMonth = computed(() => {
   return new Date(year.value, month.value + 1, 0).getDate()
 })
 
-// วันแรก
 const firstDay = computed(() => {
   return new Date(year.value, month.value, 1).getDay()
 })
+
 
 // เปลี่ยนเดือน
 function prevMonth() {
@@ -41,14 +46,14 @@ function nextMonth() {
   } else month.value++
 }
 
-// เลือกวัน
+//เลือกวัน
 function selectDate(day) {
   selectedDate.value = `${year.value}-${String(
     month.value + 1
   ).padStart(2, "0")}-${String(day).padStart(2, "0")}`
 }
 
-// ส่ง
+// กดยืนยัน
 function submitBooking() {
   if (!selectedDate.value || !selectedTime.value) {
     alert("กรุณาเลือกวันและเวลา")
@@ -60,12 +65,19 @@ function submitBooking() {
     time: selectedTime.value,
   })
 
-  alert("บันทึกแล้ว ✅")
+  showSuccess.value = true
+}
+
+//   ปิด Popup
+function closeModal() {
+  showSuccess.value = false
+  selectedDate.value = null
+  selectedTime.value = null
 }
 </script>
 
 <template>
-  <div class="bg-white p-10">
+  <div class="bg-white min-h-screen p-10">
 
     <!-- หัวข้อ -->
     <h1 class="text-center text-2xl font-bold mb-12">
@@ -75,9 +87,7 @@ function submitBooking() {
     <div class="max-w-5xl mx-auto flex justify-center gap-16">
 
       <!-- ปฏิทิน -->
-      <div
-        class="bg-white rounded-xl border shadow-md p-6 w-80"
-      >
+      <div class="bg-white rounded-xl border shadow-md p-6 w-80">
 
         <p class="mb-3 font-medium">
           เลือกวันที่
@@ -88,7 +98,7 @@ function submitBooking() {
 
           <button
             @click="prevMonth"
-            class="text-xl font-bold"
+            class="text-xl font-bold hover:text-gray-600"
           >
             ‹
           </button>
@@ -99,19 +109,19 @@ function submitBooking() {
 
           <button
             @click="nextMonth"
-            class="text-xl font-bold"
+            class="text-xl font-bold hover:text-gray-600"
           >
             ›
           </button>
 
         </div>
 
-        <!-- วัน -->
+        <!-- วันในสัปดาห์ -->
         <div
           class="grid grid-cols-7 text-center text-sm mb-2 text-gray-500"
         >
           <div
-            v-for="d in ['จ','อ','พ','พฤ','ศ','ส','อา']"
+            v-for="d in ['อา','จ','อ','พ','พฤ','ศ','ส']"
             :key="d"
           >
             {{ d }}
@@ -130,7 +140,13 @@ function submitBooking() {
             v-for="day in daysInMonth"
             :key="day"
             @click="selectDate(day)"
-            class="h-8 rounded-full text-sm hover:bg-gray-200"
+            class="
+              h-9
+              rounded-full
+              text-sm
+              hover:bg-gray-200
+              transition
+            "
             :class="{
               'bg-black text-white':
                 selectedDate?.endsWith('-' + String(day).padStart(2,'0'))
@@ -156,9 +172,18 @@ function submitBooking() {
             v-for="time in times"
             :key="time"
             @click="selectedTime = time"
-            class="w-full py-3 rounded-xl bg-white border shadow-sm hover:shadow-md"
+            class="
+              w-full
+              py-3
+              rounded-xl
+              bg-white
+              border
+              shadow-sm
+              hover:shadow-md
+              transition
+            "
             :class="{
-              'border-black font-semibold':
+              'border-black font-semibold bg-gray-50':
                 selectedTime === time
             }"
           >
@@ -170,7 +195,16 @@ function submitBooking() {
         <!-- ปุ่มยืนยัน -->
         <button
           @click="submitBooking"
-          class="w-full mt-8 py-3 rounded-xl bg-[#e7dcc7] font-medium hover:opacity-80"
+          class="
+            w-full
+            mt-8
+            py-3
+            rounded-xl
+            bg-[#e7dcc7]
+            font-medium
+            hover:opacity-80
+            transition
+          "
         >
           ยืนยัน
         </button>
@@ -179,5 +213,88 @@ function submitBooking() {
 
     </div>
 
+
+    <!-- =====================
+      Success Modal
+    ====================== -->
+    <div
+      v-if="showSuccess"
+      class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+    >
+
+      <div
+        class="
+          bg-white
+          rounded-xl
+          shadow-xl
+          px-10
+          py-8
+          text-center
+          w-80
+          animate-fade
+        "
+      >
+
+        <!-- Icon -->
+        <div
+          class="
+            mx-auto
+            mb-4
+            w-14
+            h-14
+            flex
+            items-center
+            justify-center
+            rounded-full
+            bg-green-500
+            text-white
+            text-2xl
+          "
+        >
+          ✓
+        </div>
+
+        <!-- Text -->
+        <p class="font-medium text-lg mb-6">
+          ยืนยันการนัดหมายเสร็จสิ้น
+        </p>
+
+        <!-- Button -->
+        <button
+          @click="closeModal"
+          class="
+            px-6
+            py-2
+            rounded-lg
+            bg-gray-200
+            hover:bg-gray-300
+            transition
+          "
+        >
+          ปิด
+        </button>
+
+      </div>
+
+    </div>
+
   </div>
 </template>
+
+<style>
+/* Animation */
+@keyframes fade {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade {
+  animation: fade 0.25s ease-out;
+}
+</style>
