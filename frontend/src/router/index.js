@@ -8,6 +8,7 @@ import Register from '../Pages/Register.vue'
 import Resetpassword from '../Pages/Resetpassword.vue'
 import Packages from '../Pages/Packages.vue'
 import PackagespreWedding from '../Pages/Packagespre-wedding.vue'
+import Admin from '../Pages/Admin.vue'
 
 const routes = [
   { path: '/', component: Home },
@@ -18,6 +19,7 @@ const routes = [
   { path: "/packagespre-wedding", component: PackagespreWedding },
   { path: "/register", component: Register, meta: { hideNavbar: true, hideFooter: true},},
   { path: "/resetpassword", component: Resetpassword, meta: { hideNavbar: true, hideFooter: true},},
+  { path: '/admin', component: Admin },
   
   ];
 

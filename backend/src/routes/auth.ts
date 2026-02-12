@@ -35,15 +35,15 @@ auth.post("/login", async (c) => {
   const db = c.env.pre_wedding
 
   const user = await db
-    .prepare("SELECT * FROM users WHERE email = ? OR name = ?")
+    .prepare("SELECT * FROM users WHERE LOWER(email) = LOWER(?) OR LOWER(name) = LOWER(?)")
     .bind(identifier, identifier)
     .first()
 
-  if (!user) return c.json({ message: "Invalid credentials" }, 401)
+  if (!user) return c.json({ message: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง" }, 401)
 
   const isValid = await comparePassword(password, user.password)
 
-  if (!isValid) return c.json({ message: "Invalid credentials" }, 401)
+  if (!isValid) return c.json({ message: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง" }, 401)
 
   const token = generateToken({
     id: user.id,
