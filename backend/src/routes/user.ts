@@ -1,9 +1,10 @@
 import { Hono } from "hono"
-import { verifyToken } from "../middleware/authMiddleware"
+import { authMiddleware } from "../middleware/authMiddleware"
 
 export const userRoute = new Hono()
 
-userRoute.use("*", verifyToken)
+userRoute.use("*", authMiddleware)
+
 
 userRoute.get("/home", (c) => {
   return c.json({

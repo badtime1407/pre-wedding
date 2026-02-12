@@ -1,9 +1,9 @@
 import { Hono } from "hono"
-import { verifyToken } from "../middleware/authMiddleware"
+import { authMiddleware } from "../middleware/authMiddleware"
 
 export const admin = new Hono()
 
-admin.use("*", verifyToken)
+admin.use("*", authMiddleware)
 
 admin.get("/dashboard", (c) => {
   const user = c.get("user") as any
