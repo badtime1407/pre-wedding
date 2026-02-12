@@ -31,12 +31,12 @@ auth.post("/register", async (c) => {
 })
 
 auth.post("/login", async (c) => {
-  const { email, password } = await c.req.json()
+  const { identifier, password } = await c.req.json()
   const db = c.env.pre_wedding
 
   const user = await db
-    .prepare("SELECT * FROM users WHERE email = ?")
-    .bind(email)
+    .prepare("SELECT * FROM users WHERE email = ? OR name = ?")
+    .bind(identifier, identifier)
     .first()
 
   if (!user) return c.json({ message: "Invalid credentials" }, 401)
