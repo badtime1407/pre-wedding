@@ -113,7 +113,7 @@ const logout = () => {
           <RouterLink to="/packages"
             class="block px-4 py-2 hover:bg-[#d2b48c] transition"
             @click="closePackage">
-            ถ่ายภาพทั่วไป
+            แพ็คเกจการจัดงาน
           </RouterLink>
         </div>
       </li>

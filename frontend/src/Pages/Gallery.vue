@@ -2,14 +2,21 @@
 import { ref } from "vue"
 
 const images = ref([
-  "/Pic1.png",
-  "/Pic2.png",
-  "/Pic3.png",
-  "/Pic4.png",
-  "/Pic5.png",
-  "/Pic17.png",
-  "/Pic6.png",
-  
+  "/G1.png",
+  "/G2.png",
+  "/G3.png",
+  "/G4.png",
+  "/G5.png",
+  "/G6.png",
+  "/G7.png",
+  "/G8.png",
+  "/G9.png",
+  "/G13.png",
+  "/G11.png",
+  "/G12.png",
+  "/G14.png",
+  "/G10.png",
+  "/G15.png",
 ])
 </script>
 
@@ -27,8 +34,8 @@ const images = ref([
         columns-1
         sm:columns-2
         md:columns-3
-        gap-6
-        space-y-6
+        gap-8
+        space-y-8
       "
     >
       <div
