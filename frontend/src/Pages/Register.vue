@@ -48,7 +48,6 @@ const register = async () => {
       return
     }
 
-    alert("สมัครสมาชิกสำเร็จ 🎉")
     router.push("/login")
 
   } catch (err) {
