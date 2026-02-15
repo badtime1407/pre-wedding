@@ -8,6 +8,7 @@ const email = ref("")
 const password = ref("")
 const error = ref("")
 const loading = ref(false)
+const showPassword = ref(false)
 
 const login = async () => {
   error.value = ""
@@ -80,11 +81,19 @@ const login = async () => {
 
                     <div class="mt-10">
                         <label class="block text-sm font-bold mb-2">รหัสผ่าน</label>
-                        <input
+                        <div class="relative">
+                            <input
                             v-model="password"
-                            type="password"
-                            class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white"
-                        />
+                            :type="showPassword ? 'text' : 'password'"
+                            class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white"/>
+
+                            <img
+                                :src="showPassword ? '/view.png' : '/hide.png'"
+                                @click="showPassword = !showPassword"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 cursor-pointer"
+                            />
+                        </div>
+
                     </div>
 
                     <div class="text-right mt-2">

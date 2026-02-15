@@ -59,3 +59,46 @@ auth.post("/login", async (c) => {
     }
   })
 })
+
+auth.post("/reset-password", async (c) => {
+  try {
+    const { identifier, newPassword } = await c.req.json()
+
+    if (!identifier || !newPassword) {
+      return c.json({ message: "Missing fields" }, 400)
+    }
+
+    if (newPassword.length < 6) {
+      return c.json(
+        { message: "Password must be at least 6 characters" },
+        400
+      )
+    }
+
+    const db = c.env.pre_wedding
+
+    const user = await db
+      .prepare(
+        "SELECT id FROM users WHERE LOWER(email) = LOWER(?) OR LOWER(name) = LOWER(?)"
+      )
+      .bind(identifier, identifier)
+      .first()
+
+    if (!user) {
+      return c.json({ message: "User not found" }, 404)
+    }
+
+    const hashed = await hashPassword(newPassword)
+
+    await db
+      .prepare("UPDATE users SET password = ? WHERE id = ?")
+      .bind(hashed, user.id)
+      .run()
+
+    return c.json({ message: "Password reset successfully" })
+
+  } catch (err) {
+    console.error(err)
+    return c.json({ message: "Server error" }, 500)
+  }
+})
