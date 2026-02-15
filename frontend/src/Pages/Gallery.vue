@@ -29,20 +29,9 @@ const images = ref([
     </h1>
 
     <!-- Masonry -->
-    <div
-      class="
-        columns-1
-        sm:columns-2
-        md:columns-3
-        gap-8
-        space-y-8
-      "
-    >
-      <div
-        v-for="(img, index) in images"
-        :key="index"
-        class="break-inside-avoid"
-      >
+    <div class="columns-1 sm:columns-2 md:columns-3 gap-8 space-y-8">
+
+      <div v-for="(img, index) in images" :key="index" class="break-inside-avoid">
         <img
           :src="img"
           class="
