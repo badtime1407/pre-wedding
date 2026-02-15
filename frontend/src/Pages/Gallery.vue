@@ -7,18 +7,9 @@ const images = ref([
   "/Pic3.png",
   "/Pic4.png",
   "/Pic5.png",
-  "/Pic6.png",
-  "/Pic7.png",
-  "/Pic8.png",
-  "/Pic9.png",
-  "/Pic10.png",
-  "/Pic11.png",
-  "/Pic12.png",
-  "/Pic13.png",
-  "/Pic14.png",
-  "/Pic15.png",
-  "/Pic16.png",
   "/Pic17.png",
+  "/Pic6.png",
+  
 ])
 </script>
 

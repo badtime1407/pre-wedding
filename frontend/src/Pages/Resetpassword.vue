@@ -54,7 +54,6 @@ const resetPassword = async () => {
       return
     }
 
-    alert("เปลี่ยนรหัสผ่านสำเร็จ 🎉")
     router.push("/login")
 
   } catch (err) {
