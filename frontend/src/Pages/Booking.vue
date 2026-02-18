@@ -1,5 +1,16 @@
 <script setup>
 import { ref, computed } from "vue"
+import { onMounted } from "vue"
+
+onMounted(async () => {
+  try {
+    const res = await fetch("http://localhost:8787/bookings/occupied")
+    const data = await res.json()
+    occupiedSlots.value = data
+  } catch (err) {
+    console.log("โหลดข้อมูล slot ล้มเหลว")
+  }
+})
 
 /* =====================
    DATE SETUP
@@ -77,22 +88,50 @@ function submitBooking() {
   showCustomerForm.value = true
 }
 
-function confirmCustomerInfo() {
+async function confirmCustomerInfo() {
   if (!customerName.value || !customerPhone.value) {
     alert("กรุณากรอกชื่อและเบอร์โทร")
     return
   }
 
-  console.log({
-    date: selectedDate.value,
-    time: selectedTime.value,
-    name: customerName.value,
-    phone: customerPhone.value,
-  })
+  const token = localStorage.getItem("token")
 
-  showCustomerForm.value = false
-  showSuccess.value = true
+  if (!token) {
+    alert("กรุณาเข้าสู่ระบบก่อนทำการจอง")
+    return
+  }
+
+  try {
+    const res = await fetch("http://localhost:8787/bookings", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        date: selectedDate.value,
+        time: selectedTime.value,
+        customer_name: customerName.value,
+        customer_phone: customerPhone.value,
+      })
+    })
+
+    const data = await res.json()
+
+    if (!res.ok) {
+      alert(data.message)
+      return
+    }
+
+    showCustomerForm.value = false
+    showSuccess.value = true
+
+  } catch (err) {
+    alert("เชื่อมต่อเซิร์ฟเวอร์ไม่ได้")
+  }
 }
+
+const occupiedSlots = ref([])
 
 function closeModal() {
   showSuccess.value = false
@@ -101,20 +140,35 @@ function closeModal() {
   customerName.value = ""
   customerPhone.value = ""
 }
+
+function fullDate(day) {
+  return `${year.value}-${String(month.value + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`
+}
+
+function isTimeBooked(date, time) {
+  return occupiedSlots.value.some(
+    b => b.date === date && b.time === time
+  )
+}
+
+function isDateFullyBooked(date) {
+  const dayBookings = occupiedSlots.value.filter(
+    b => b.date === date
+  )
+  return dayBookings.length >= times.length
+}
 </script>
 
 <template>
   <div class="bg-white min-h-screen p-10">
 
-    <h1 class="text-center text-2xl font-bold mb-12">
+    <h1 class="text-center text-3xl font-bold mb-12">
       นัดหมายปรึกษา
     </h1>
 
     <div class="max-w-5xl mx-auto flex justify-center gap-16">
 
-      <!-- =====================
-           CALENDAR
-      ====================== -->
+      <!-- ================= CALENDAR ================= -->
       <div class="bg-white rounded-xl border shadow-md p-6 w-80">
 
         <p class="mb-3 font-medium">เลือกวันที่</p>
@@ -143,39 +197,43 @@ function closeModal() {
           <div v-for="i in firstDay" :key="'e'+i"></div>
 
           <button
-            v-for="day in daysInMonth"
-            :key="day"
-            @click="selectDate(day)"
-            class="h-9 rounded-full text-sm hover:bg-gray-200 transition"
-            :class="{
-              'bg-black text-white':
-                selectedDate?.endsWith('-' + String(day).padStart(2,'0'))
-            }"
-          >
-            {{ day }}
-          </button>
+  v-for="day in daysInMonth"
+  :key="day"
+  :disabled="isDateFullyBooked(fullDate(day))"
+  @click="!isDateFullyBooked(fullDate(day)) && selectDate(day)"
+  class="h-9 rounded-full text-sm transition"
+  :class="{
+    'bg-black text-white':
+      selectedDate?.endsWith('-' + String(day).padStart(2,'0')),
+    'bg-gray-200 text-gray-400 cursor-not-allowed':
+      isDateFullyBooked(fullDate(day))
+  }"
+>
+  {{ day }}
+</button>
         </div>
       </div>
 
-      <!-- =====================
-           TIME
-      ====================== -->
+      <!-- ================= TIME ================= -->
       <div class="w-72">
         <p class="mb-4 font-medium">เลือกเวลา</p>
 
         <div class="space-y-4">
           <button
-            v-for="time in times"
-            :key="time"
-            @click="selectedTime = time"
-            class="w-full py-3 rounded-xl bg-white border shadow-sm hover:shadow-md transition"
-            :class="{
-              'border-black font-semibold bg-gray-50':
-                selectedTime === time
-            }"
-          >
-            {{ time }}
-          </button>
+  v-for="time in times"
+  :key="time"
+  :disabled="isTimeBooked(selectedDate, time)"
+  @click="!isTimeBooked(selectedDate, time) && (selectedTime = time)"
+  class="w-full py-3 rounded-xl border transition"
+  :class="{
+    'border-black font-semibold bg-gray-50':
+      selectedTime === time,
+    'bg-gray-200 text-gray-400 cursor-not-allowed':
+      isTimeBooked(selectedDate, time)
+  }"
+>
+  {{ time }}
+</button>
         </div>
 
         <button
@@ -187,9 +245,7 @@ function closeModal() {
       </div>
     </div>
 
-    <!-- =====================
-         CUSTOMER FORM MODAL
-    ====================== -->
+    <!-- ================= CUSTOMER MODAL ================= -->
     <div
       v-if="showCustomerForm"
       class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
@@ -234,9 +290,7 @@ function closeModal() {
       </div>
     </div>
 
-    <!-- =====================
-         SUCCESS MODAL
-    ====================== -->
+    <!-- ================= SUCCESS MODAL ================= -->
     <div
       v-if="showSuccess"
       class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
