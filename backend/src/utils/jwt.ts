@@ -1,11 +1,31 @@
-import jwt from "jsonwebtoken"
+import jwt, { JwtPayload } from "jsonwebtoken"
 
-const SECRET = "super_secret_key_change_this"
+export function generateToken(
+  payload: { id: number; role: string },
+  secret: string
+): string {
+  if (!secret) {
+    throw new Error("JWT secret is not defined")
+  }
 
-export function generateToken(payload: any) {
-  return jwt.sign(payload, SECRET, { expiresIn: "1d" })
+  return jwt.sign(payload, secret, {
+    expiresIn: "1d", // token อายุ 1 วัน
+  })
 }
 
-export function verifyToken(token: string) {
-  return jwt.verify(token, SECRET)
+export function verifyToken(
+  token: string,
+  secret: string
+): JwtPayload & { id: number; role: string } {
+  if (!secret) {
+    throw new Error("JWT secret is not defined")
+  }
+
+  const decoded = jwt.verify(token, secret)
+
+  if (typeof decoded === "string") {
+    throw new Error("Invalid token payload")
+  }
+
+  return decoded as JwtPayload & { id: number; role: string }
 }

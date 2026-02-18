@@ -35,28 +35,38 @@ auth.post("/login", async (c) => {
   const db = c.env.pre_wedding
 
   const user = await db
-    .prepare("SELECT * FROM users WHERE LOWER(email) = LOWER(?) OR LOWER(name) = LOWER(?)")
+    .prepare(
+      "SELECT * FROM users WHERE LOWER(email) = LOWER(?) OR LOWER(name) = LOWER(?)"
+    )
     .bind(identifier, identifier)
     .first()
 
-  if (!user) return c.json({ message: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง" }, 401)
+  if (!user)
+    return c.json({ message: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง" }, 401)
 
   const isValid = await comparePassword(password, user.password)
 
-  if (!isValid) return c.json({ message: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง" }, 401)
+  if (!isValid)
+    return c.json({ message: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง" }, 401)
 
-  const token = generateToken({
-    id: user.id,
-    role: user.role
-  })
+  // ✅ ดึง secret จาก environment
+  const secret = c.env.JWT_SECRET
+
+  const token = generateToken(
+    {
+      id: user.id,
+      role: user.role,
+    },
+    secret
+  )
 
   return c.json({
     token,
     user: {
       id: user.id,
       email: user.email,
-      role: user.role
-    }
+      role: user.role,
+    },
   })
 })
 

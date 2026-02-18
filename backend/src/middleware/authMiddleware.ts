@@ -10,7 +10,7 @@ export async function authMiddleware(c: any, next: any) {
   const token = authHeader.split(" ")[1]
 
   try {
-    const decoded = verifyToken(token)
+    const decoded = verifyToken(token, c.env.JWT_SECRET)
     c.set("user", decoded)
     await next()
   } catch {
