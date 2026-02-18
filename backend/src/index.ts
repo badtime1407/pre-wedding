@@ -3,6 +3,8 @@ import { cors } from "hono/cors"
 import { auth } from "./routes/auth"
 import { admin } from "./routes/admin"
 import { userRoute } from "./routes/user"
+import { packagesRoute } from "./routes/packages"
+
 
 const app = new Hono()
 
@@ -15,5 +17,6 @@ app.use("*", cors({
 app.route("/auth", auth)
 app.route("/admin", admin)
 app.route("/user", userRoute)
+app.route("/packages", packagesRoute)
 
 export default app
