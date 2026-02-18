@@ -49,7 +49,7 @@ onMounted(async () => {
     </div>
 
     <!-- Grid -->
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-10 max-w-6xl mx-auto">
 
       <div
         v-for="pkg in packages"
@@ -107,7 +107,7 @@ onMounted(async () => {
         <!-- Image -->
         <img
           :src="selectedPackage.image_url"
-          class="w-full h-60 object-cover object-[center_25%]"
+          class="w-full h-120 object-cover object-[center_25%]"
         />
 
         <!-- Title -->

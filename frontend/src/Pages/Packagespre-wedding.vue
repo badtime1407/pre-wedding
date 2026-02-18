@@ -49,7 +49,7 @@ onMounted(async () => {
     </div>
 
     <!-- Grid -->
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-10 max-w-6xl mx-auto">
 
       <div
         v-for="pkg in packages"
@@ -59,7 +59,7 @@ onMounted(async () => {
         <!-- Image -->
         <img
           :src="pkg.image_url"
-          class="w-full h-60 object-cover"
+          class="w-full h-60 object-cover object-[center_20%]"
         />
 
         <!-- Content -->
@@ -89,7 +89,7 @@ onMounted(async () => {
 
     </div>
 
-    <!-- 🔥 Popup -->
+    <!-- Popup -->
     <div
       v-if="selectedPackage"
       class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4"
@@ -110,7 +110,7 @@ onMounted(async () => {
         <!-- Image -->
         <img
           :src="selectedPackage.image_url"
-          class="w-full h-64 object-cover rounded-xl mb-6"
+          class="w-full h-120 object-cover object-[center_15%]"
         />
 
         <!-- Title -->
