@@ -19,7 +19,7 @@ const routes = [
   { path: "/packagespre-wedding", component: PackagespreWedding },
   { path: "/register", component: Register, meta: { hideNavbar: true, hideFooter: true},},
   { path: "/resetpassword", component: Resetpassword, meta: { hideNavbar: true, hideFooter: true},},
-  { path: '/admin', component: Admin },
+  { path: '/admin', component: Admin, meta: { hideNavbar: true, hideFooter: true},},
   
   ];
 
