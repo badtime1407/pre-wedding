@@ -35,11 +35,6 @@ onMounted(async () => {
       แพ็คเกจ Pre-Wedding
     </h1>
 
-    <!-- Loading -->
-    <div v-if="loading" class="text-center text-lg">
-      กำลังโหลด...
-    </div>
-
     <!-- Error -->
     <div v-if="error" class="text-center text-red-500">
       {{ error }}

@@ -35,11 +35,6 @@ onMounted(async () => {
       แพ็คเก็จจัดงานแต่ง
     </h1>
 
-    <!-- Loading -->
-    <div v-if="loading" class="text-center text-lg">
-      กำลังโหลด...
-    </div>
-
     <!-- Error -->
     <div v-if="error" class="text-center text-red-500">
       {{ error }}
@@ -62,10 +57,7 @@ onMounted(async () => {
         class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300 hover:-translate-y-1"
       >
         <!-- Image -->
-        <img
-          :src="pkg.image_url"
-          class="w-full h-60 object-cover"
-        />
+        <img :src="pkg.image_url" class="w-full h-60 object-cover object-[center_25%]"/>
 
         <!-- Content -->
         <div class="p-6 space-y-4">
@@ -94,7 +86,7 @@ onMounted(async () => {
 
     </div>
 
-    <!-- 🔥 Popup -->
+    <!--Popup -->
     <div
       v-if="selectedPackage"
       class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4 animate-fadeIn"
@@ -115,7 +107,7 @@ onMounted(async () => {
         <!-- Image -->
         <img
           :src="selectedPackage.image_url"
-          class="w-full h-64 object-cover rounded-xl mb-6"
+          class="w-full h-60 object-cover object-[center_25%]"
         />
 
         <!-- Title -->
