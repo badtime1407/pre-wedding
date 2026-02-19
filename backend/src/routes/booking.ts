@@ -28,19 +28,20 @@ booking.post("/", authMiddleware, async (c) => {
   }
 
   await db
-    .prepare(
-      `INSERT INTO bookings 
-       (user_id, date, time, customer_name, customer_phone)
-       VALUES (?, ?, ?, ?, ?)`
-    )
-    .bind(
-      user.id,
-      date,
-      time,
-      customer_name,
-      customer_phone
-    )
-    .run()
+  .prepare(
+    `INSERT INTO bookings 
+     (user_id, date, time, customer_name, customer_phone, status)
+     VALUES (?, ?, ?, ?, ?, ?)`
+  )
+  .bind(
+    user.id,
+    date,
+    time,
+    customer_name,
+    customer_phone,
+    "confirmed"
+  )
+  .run()
 
   return c.json({ message: "จองสำเร็จ" })
 })
@@ -89,7 +90,7 @@ booking.get("/occupied", async (c) => {
   const db = c.env.pre_wedding
 
   const bookings = await db
-    .prepare("SELECT date, time FROM bookings")
+    .prepare("SELECT date, time FROM bookings WHERE status != 'cancelled'")
     .all()
 
   return c.json(bookings.results)

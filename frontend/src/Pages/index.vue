@@ -129,7 +129,7 @@ const gallery = [
 
           <div class="p-4 text-center">
             <p class="font-medium">
-              แพ็กเกจถ่ายภาพ
+              แพ็กเกจการจัดงาน
             </p>
 
             <router-link to="/packages" class="mt-3 inline-block bg-white px-4 py-1 rounded hover:bg-gray-300">รายละเอียด</router-link>

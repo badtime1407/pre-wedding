@@ -32,7 +32,7 @@ onMounted(async () => {
   <div class="min-h-screen bg-[#f6f8f6] py-16 px-6">
 
     <h1 class="text-4xl font-bold text-center mb-12">
-      แพ็คเก็จจัดงานแต่ง
+      แพ็คเก็จการจัดงาน
     </h1>
 
     <!-- Error -->

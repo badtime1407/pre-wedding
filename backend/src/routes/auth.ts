@@ -56,6 +56,8 @@ auth.post("/login", async (c) => {
     {
       id: user.id,
       role: user.role,
+      name: user.name,
+      email: user.email
     },
     secret
   )

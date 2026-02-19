@@ -9,6 +9,7 @@ import Resetpassword from '../Pages/Resetpassword.vue'
 import Packages from '../Pages/Packages.vue'
 import PackagespreWedding from '../Pages/Packagespre-wedding.vue'
 import Admin from '../Pages/Admin.vue'
+import OrderStatus from '../Pages/OrderStatus.vue'
 
 const routes = [
   { path: '/', component: Home },
@@ -19,7 +20,8 @@ const routes = [
   { path: "/packagespre-wedding", component: PackagespreWedding },
   { path: "/register", component: Register, meta: { hideNavbar: true, hideFooter: true},},
   { path: "/resetpassword", component: Resetpassword, meta: { hideNavbar: true, hideFooter: true},},
-  { path: '/admin', component: Admin, meta: { hideNavbar: true, hideFooter: true},},
+  {  path: "/orderstatus", name: "OrderStatus", component: OrderStatus, meta: { requiresAuth: true }},
+  {  path: "/admin", component: Admin, meta: { requiresAuth: true, requiresAdmin: true, hideNavbar: true, hideFooter: true }},
   
   ];
 
@@ -28,4 +30,29 @@ const router = createRouter({
   routes,
 });
 
-export default router;
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem("token")
+
+  // ถ้าไม่ต้องการ login
+  if (!to.meta.requiresAuth) {
+    return next()
+  }
+
+  // ถ้าต้อง login แต่ไม่มี token
+  if (!token) {
+    return next("/login")
+  }
+
+  // ถ้าต้องเป็น admin
+  if (to.meta.requiresAdmin) {
+    const payload = JSON.parse(atob(token.split(".")[1]))
+
+    if (payload.role !== "admin") {
+      return next("/")
+    }
+  }
+
+  next()
+})
+
+export default router
