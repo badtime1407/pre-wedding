@@ -185,23 +185,23 @@ const logout = () => {
 
           <button @click="toggleProfile">
             <img src="/user.png"
-                 class="w-10 h-10 rounded-full border-2 border-gray-300 hover:scale-105 transition" />
+                 class="w-10 h-10 rounded-full border-2 border-gray-100 hover:scale-105 transition" />
           </button>
 
           <!-- PROFILE POPUP -->
           <transition name="dropdown">
             <div
               v-if="showProfile"
-              class="absolute right-0 mt-3 w-72 bg-white shadow-xl rounded-xl border border-gray-200 p-4 z-50"
+              class="absolute right-0 mt-3 w-80 h-100 bg-white shadow-xl rounded-xl border border-gray-200 p-4 z-50"
               :class="isLoggingOut ? 'opacity-0 scale-95' : ''">
 
               <!-- USER INFO -->
-              <div class="border-b pb-3 mb-3">
+              <div class="border-b pb-3 mb-3 text-center mt-3">
                 <p class="font-semibold text-gray-800 text-lg">
-                  {{ user?.name || 'User' }}
+                  ชื่อผู้ใช้ : {{ user?.name || 'User' }}
                 </p>
-                <p class="text-sm text-gray-500">
-                  Role: {{ user?.role }}
+                <p class="text-sm text-gray-500 mt-3">
+                  Role : {{ user?.role }}
                 </p>
               </div>
 
