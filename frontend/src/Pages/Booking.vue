@@ -1,6 +1,10 @@
 <script setup>
-import { ref, computed } from "vue"
-import { onMounted } from "vue"
+import { ref, computed, onMounted } from "vue"
+
+/* =====================
+   LOAD OCCUPIED SLOTS
+===================== */
+const occupiedSlots = ref([])
 
 onMounted(async () => {
   try {
@@ -16,12 +20,23 @@ onMounted(async () => {
    DATE SETUP
 ===================== */
 const today = new Date()
-
 const month = ref(today.getMonth())
 const year = ref(today.getFullYear())
 
 const selectedDate = ref(null)
 const selectedTime = ref(null)
+
+/* =====================
+   🇹🇭 THAI MONTH
+===================== */
+const thaiMonths = [
+  "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน",
+  "พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม",
+  "กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"
+]
+
+const thaiYear = computed(() => year.value + 543)
+const thaiMonthName = computed(() => thaiMonths[month.value])
 
 /* =====================
    TIME OPTIONS
@@ -60,20 +75,43 @@ function prevMonth() {
   if (month.value === 0) {
     month.value = 11
     year.value--
-  } else month.value--
+  } else {
+    month.value--
+  }
 }
 
 function nextMonth() {
   if (month.value === 11) {
     month.value = 0
     year.value++
-  } else month.value++
+  } else {
+    month.value++
+  }
+}
+
+function fullDate(day) {
+  return `${year.value}-${String(month.value + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`
 }
 
 function selectDate(day) {
-  selectedDate.value = `${year.value}-${String(
-    month.value + 1
-  ).padStart(2, "0")}-${String(day).padStart(2, "0")}`
+  selectedDate.value = fullDate(day)
+}
+
+/* =====================
+   SLOT CHECK
+===================== */
+function isTimeBooked(date, time) {
+  if (!date) return false
+  return occupiedSlots.value.some(
+    b => b.date === date && b.time === time
+  )
+}
+
+function isDateFullyBooked(date) {
+  const dayBookings = occupiedSlots.value.filter(
+    b => b.date === date
+  )
+  return dayBookings.length >= times.length
 }
 
 /* =====================
@@ -84,7 +122,6 @@ function submitBooking() {
     alert("กรุณาเลือกวันและเวลา")
     return
   }
-
   showCustomerForm.value = true
 }
 
@@ -95,7 +132,6 @@ async function confirmCustomerInfo() {
   }
 
   const token = localStorage.getItem("token")
-
   if (!token) {
     alert("กรุณาเข้าสู่ระบบก่อนทำการจอง")
     return
@@ -126,12 +162,10 @@ async function confirmCustomerInfo() {
     showCustomerForm.value = false
     showSuccess.value = true
 
-  } catch (err) {
+  } catch {
     alert("เชื่อมต่อเซิร์ฟเวอร์ไม่ได้")
   }
 }
-
-const occupiedSlots = ref([])
 
 function closeModal() {
   showSuccess.value = false
@@ -139,23 +173,6 @@ function closeModal() {
   selectedTime.value = null
   customerName.value = ""
   customerPhone.value = ""
-}
-
-function fullDate(day) {
-  return `${year.value}-${String(month.value + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`
-}
-
-function isTimeBooked(date, time) {
-  return occupiedSlots.value.some(
-    b => b.date === date && b.time === time
-  )
-}
-
-function isDateFullyBooked(date) {
-  const dayBookings = occupiedSlots.value.filter(
-    b => b.date === date
-  )
-  return dayBookings.length >= times.length
 }
 </script>
 
@@ -168,23 +185,20 @@ function isDateFullyBooked(date) {
 
     <div class="max-w-5xl mx-auto flex justify-center gap-16">
 
-      <!-- ================= CALENDAR ================= -->
+      <!-- CALENDAR -->
       <div class="bg-white rounded-xl border shadow-md p-6 w-80">
 
         <p class="mb-3 font-medium">เลือกวันที่</p>
 
         <div class="flex justify-between items-center mb-4">
-          <button @click="prevMonth" class="text-xl font-bold hover:text-gray-600">
-            ‹
-          </button>
+          <button @click="prevMonth" class="text-xl font-bold hover:text-gray-600">‹</button>
 
+          <!-- 🔥 เปลี่ยนเป็นเดือนภาษาไทย -->
           <span class="font-semibold text-lg">
-            {{ month + 1 }}/{{ year }}
+            {{ thaiMonthName }} {{ thaiYear }}
           </span>
 
-          <button @click="nextMonth" class="text-xl font-bold hover:text-gray-600">
-            ›
-          </button>
+          <button @click="nextMonth" class="text-xl font-bold hover:text-gray-600">›</button>
         </div>
 
         <div class="grid grid-cols-7 text-center text-sm mb-2 text-gray-500">
@@ -197,43 +211,43 @@ function isDateFullyBooked(date) {
           <div v-for="i in firstDay" :key="'e'+i"></div>
 
           <button
-  v-for="day in daysInMonth"
-  :key="day"
-  :disabled="isDateFullyBooked(fullDate(day))"
-  @click="!isDateFullyBooked(fullDate(day)) && selectDate(day)"
-  class="h-9 rounded-full text-sm transition"
-  :class="{
-    'bg-black text-white':
-      selectedDate?.endsWith('-' + String(day).padStart(2,'0')),
-    'bg-gray-200 text-gray-400 cursor-not-allowed':
-      isDateFullyBooked(fullDate(day))
-  }"
->
-  {{ day }}
-</button>
+            v-for="day in daysInMonth"
+            :key="day"
+            :disabled="isDateFullyBooked(fullDate(day))"
+            @click="!isDateFullyBooked(fullDate(day)) && selectDate(day)"
+            class="h-9 rounded-full text-sm transition"
+            :class="{
+              'bg-black text-white':
+                selectedDate?.endsWith('-' + String(day).padStart(2,'0')),
+              'bg-gray-200 text-gray-400 cursor-not-allowed':
+                isDateFullyBooked(fullDate(day))
+            }"
+          >
+            {{ day }}
+          </button>
         </div>
       </div>
 
-      <!-- ================= TIME ================= -->
+      <!-- TIME -->
       <div class="w-72">
         <p class="mb-4 font-medium">เลือกเวลา</p>
 
         <div class="space-y-4">
           <button
-  v-for="time in times"
-  :key="time"
-  :disabled="isTimeBooked(selectedDate, time)"
-  @click="!isTimeBooked(selectedDate, time) && (selectedTime = time)"
-  class="w-full py-3 rounded-xl border transition"
-  :class="{
-    'border-black font-semibold bg-gray-50':
-      selectedTime === time,
-    'bg-gray-200 text-gray-400 cursor-not-allowed':
-      isTimeBooked(selectedDate, time)
-  }"
->
-  {{ time }}
-</button>
+            v-for="time in times"
+            :key="time"
+            :disabled="isTimeBooked(selectedDate, time)"
+            @click="!isTimeBooked(selectedDate, time) && (selectedTime = time)"
+            class="w-full py-3 rounded-xl border transition"
+            :class="{
+              'border-black font-semibold bg-gray-50':
+                selectedTime === time,
+              'bg-gray-200 text-gray-400 cursor-not-allowed':
+                isTimeBooked(selectedDate, time)
+            }"
+          >
+            {{ time }}
+          </button>
         </div>
 
         <button
@@ -245,11 +259,10 @@ function isDateFullyBooked(date) {
       </div>
     </div>
 
-    <!-- ================= CUSTOMER MODAL ================= -->
-    <div
-      v-if="showCustomerForm"
-      class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
-    >
+    <!-- CUSTOMER MODAL -->
+    <div v-if="showCustomerForm"
+         class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+
       <div class="bg-white rounded-xl shadow-xl p-8 w-96 animate-fade">
 
         <h2 class="text-lg font-semibold mb-6 text-center">
@@ -257,44 +270,35 @@ function isDateFullyBooked(date) {
         </h2>
 
         <div class="space-y-4">
-          <input
-            v-model="customerName"
-            type="text"
-            placeholder="ชื่อ-นามสกุล"
-            class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gray-300"
-          />
+          <input v-model="customerName"
+                 type="text"
+                 placeholder="ชื่อ-นามสกุล"
+                 class="w-full border rounded-lg px-4 py-2"/>
 
-          <input
-            v-model="customerPhone"
-            type="tel"
-            placeholder="เบอร์โทรศัพท์"
-            class="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-gray-300"
-          />
+          <input v-model="customerPhone"
+                 type="tel"
+                 placeholder="เบอร์โทรศัพท์"
+                 class="w-full border rounded-lg px-4 py-2"/>
         </div>
 
         <div class="flex justify-end gap-3 mt-6">
-          <button
-            @click="showCustomerForm = false"
-            class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition"
-          >
+          <button @click="showCustomerForm = false"
+                  class="px-4 py-2 rounded-lg bg-gray-200">
             ยกเลิก
           </button>
 
-          <button
-            @click="confirmCustomerInfo"
-            class="px-4 py-2 rounded-lg bg-[#e7dcc7] hover:opacity-80 transition"
-          >
+          <button @click="confirmCustomerInfo"
+                  class="px-4 py-2 rounded-lg bg-[#e7dcc7]">
             ยืนยัน
           </button>
         </div>
       </div>
     </div>
 
-    <!-- ================= SUCCESS MODAL ================= -->
-    <div
-      v-if="showSuccess"
-      class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
-    >
+    <!-- SUCCESS MODAL -->
+    <div v-if="showSuccess"
+         class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+
       <div class="bg-white rounded-xl shadow-xl px-10 py-8 text-center w-80 animate-fade">
 
         <div class="mx-auto mb-4 w-14 h-14 flex items-center justify-center rounded-full bg-green-500 text-white text-2xl">
@@ -305,10 +309,8 @@ function isDateFullyBooked(date) {
           ยืนยันการนัดหมายเสร็จสิ้น
         </p>
 
-        <button
-          @click="closeModal"
-          class="px-6 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition"
-        >
+        <button @click="closeModal"
+                class="px-6 py-2 rounded-lg bg-gray-200">
           ปิด
         </button>
       </div>
