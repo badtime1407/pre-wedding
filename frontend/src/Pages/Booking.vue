@@ -177,16 +177,16 @@ function closeModal() {
 </script>
 
 <template>
-  <div class="bg-white min-h-screen p-10">
+  <div class="bg-white min-h-screen p-8 mt-8">
 
-    <h1 class="text-center text-3xl font-bold mb-12">
+    <h1 class="text-center text-3xl font-bold mb-14">
       นัดหมายปรึกษา
     </h1>
 
     <div class="max-w-5xl mx-auto flex justify-center gap-16">
 
       <!-- CALENDAR -->
-      <div class="bg-white rounded-xl border shadow-md p-6 w-80">
+      <div class="bg-white rounded-xl border shadow-md p-6 w-100 h-100">
 
         <p class="mb-3 font-medium">เลือกวันที่</p>
 
@@ -232,7 +232,7 @@ function closeModal() {
       <div class="w-72">
         <p class="mb-4 font-medium">เลือกเวลา</p>
 
-        <div class="space-y-4">
+        <div class="space-y-6">
           <button
             v-for="time in times"
             :key="time"
@@ -252,7 +252,7 @@ function closeModal() {
 
         <button
           @click="submitBooking"
-          class="w-full mt-8 py-3 rounded-xl bg-[#e7dcc7] font-medium hover:opacity-80 transition"
+          class="w-full mt-10 py-3 rounded-xl bg-[#e7dcc7] font-medium hover:opacity-80 transition"
         >
           ยืนยัน
         </button>
