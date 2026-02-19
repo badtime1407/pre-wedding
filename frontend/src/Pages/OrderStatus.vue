@@ -76,10 +76,10 @@ function statusText(status) {
         <div class="flex justify-between items-center mb-4">
           <div>
             <p class="font-semibold text-lg">
-              📅 {{ booking.date }}
+              {{ booking.date }}
             </p>
             <p class="text-gray-600">
-              🕒 {{ booking.time }}
+              {{ booking.time }}
             </p>
           </div>
 
