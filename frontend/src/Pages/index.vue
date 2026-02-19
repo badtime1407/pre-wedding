@@ -67,11 +67,9 @@ const gallery = [
     <section class="relative w-full h-100 mt-16 overflow-hidden">
 
       <!-- รูป -->
-      <img v-for="(img, index) in images"
-        :key="index"
-        :src="img"
+      <img v-for="(img, index) in images" :key="index" :src="img"
         class="absolute inset-0 w-full h-100 object-cover transition-opacity duration-1000"
-        :class="index === currentIndex ? 'opacity-100' : 'opacity-0'"/>
+       :class="index === currentIndex ? 'opacity-100' : 'opacity-0'"/>
 
       <!-- ปุ่มซ้าย -->
       <button @click="prevSlide" class="absolute left-5 top-1/2 -translate-y-1/2 hover:scale-110 transition">
@@ -86,17 +84,14 @@ const gallery = [
       <!-- จุด indicator -->
       <div class="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2">
 
-        <button
-          v-for="(img, index) in images"
-          :key="index"
-          @click="goTo(index)"
+        <button v-for="(img, index) in images" :key="index" @click="goTo(index)"
           class="w-3 h-3 rounded-full"
           :class="
             index === currentIndex
               ? 'bg-white'
               : 'bg-white/50'
-          "
-        ></button>
+          ">
+        </button>
       </div>
 
     </section>

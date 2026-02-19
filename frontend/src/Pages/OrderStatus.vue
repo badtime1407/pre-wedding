@@ -92,8 +92,8 @@ function statusText(status) {
         </div>
 
         <div class="text-sm text-gray-600">
-          <p>👤 {{ booking.customer_name }}</p>
-          <p>📞 {{ booking.customer_phone }}</p>
+          <p>ชื่อผู้สมัคร : {{ booking.customer_name }}</p>
+          <p>เบอร์โทรติดต่อ : {{ booking.customer_phone }}</p>
         </div>
 
       </div>
