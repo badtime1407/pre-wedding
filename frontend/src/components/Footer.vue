@@ -1,5 +1,5 @@
 <template>
-  <footer class="bg-[#BDA08C] px-20 py-10 mt-10">
+  <footer class="bg-[#BDA08C] px-20 py-10">
     <div class="grid grid-cols-2 gap-4">
 
       <!-- ติดต่อเรา -->
