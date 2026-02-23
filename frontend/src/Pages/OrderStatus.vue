@@ -9,7 +9,7 @@ onMounted(async () => {
   try {
     const token = localStorage.getItem("token")
 
-    const res = await fetch("http://localhost:8787/bookings/my", {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/bookings/my`, {
       headers: {
         Authorization: `Bearer ${token}`
       }
