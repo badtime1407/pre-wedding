@@ -8,7 +8,7 @@ const occupiedSlots = ref([])
 
 onMounted(async () => {
   try {
-    const res = await fetch("http://localhost:8787/bookings/occupied")
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/bookings/occupied`)
     const data = await res.json()
     occupiedSlots.value = data
   } catch (err) {
@@ -138,7 +138,7 @@ async function confirmCustomerInfo() {
   }
 
   try {
-    const res = await fetch("http://localhost:8787/bookings", {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/bookings`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -15,7 +15,7 @@ const login = async () => {
   loading.value = true
 
   try {
-    const res = await fetch("http://localhost:8787/auth/login", {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

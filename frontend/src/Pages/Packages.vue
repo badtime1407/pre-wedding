@@ -16,7 +16,7 @@ const closePopup = () => {
 
 onMounted(async () => {
   try {
-    const res = await fetch("http://localhost:8787/packages/type/event")
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/packages/type/event`)
     if (!res.ok) throw new Error("โหลดข้อมูลไม่สำเร็จ")
 
     packages.value = await res.json()
