@@ -186,53 +186,53 @@ function closeModal() {
     <div class="max-w-5xl mx-auto flex justify-center gap-16">
 
       <!-- CALENDAR -->
-      <div class="bg-white rounded-xl border shadow-md p-6 w-100 h-100">
-
+      <div>
         <p class="mb-3 font-medium">เลือกวันที่</p>
+        <div class="bg-white rounded-xl border shadow-md p-8 w-110 h-100">
 
-        <div class="flex justify-between items-center mb-4">
-          <button @click="prevMonth" class="text-xl font-bold hover:text-gray-600">‹</button>
+          <div class="flex justify-between items-center mb-4">
+            <button @click="prevMonth" class="text-xl font-bold hover:text-gray-600">‹</button>
 
-          <!-- 🔥 เปลี่ยนเป็นเดือนภาษาไทย -->
-          <span class="font-semibold text-lg">
-            {{ thaiMonthName }} {{ thaiYear }}
-          </span>
+            <span class="font-semibold text-xl">
+              {{ thaiMonthName }} {{ thaiYear }}
+            </span>
 
-          <button @click="nextMonth" class="text-xl font-bold hover:text-gray-600">›</button>
-        </div>
-
-        <div class="grid grid-cols-7 text-center text-sm mb-2 text-gray-500">
-          <div v-for="d in ['อา','จ','อ','พ','พฤ','ศ','ส']" :key="d">
-            {{ d }}
+            <button @click="nextMonth" class="text-xl font-bold hover:text-gray-600">›</button>
           </div>
-        </div>
 
-        <div class="grid grid-cols-7 gap-2">
-          <div v-for="i in firstDay" :key="'e'+i"></div>
+          <div class="grid grid-cols-7 text-center text-xl mb-2 text-gray-500">
+            <div v-for="d in ['อา','จ','อ','พ','พฤ','ศ','ส']" :key="d">
+              {{ d }}
+            </div>
+          </div>
 
-          <button
-            v-for="day in daysInMonth"
-            :key="day"
-            :disabled="isDateFullyBooked(fullDate(day))"
-            @click="!isDateFullyBooked(fullDate(day)) && selectDate(day)"
-            class="h-9 rounded-full text-sm transition"
-            :class="{
-              'bg-black text-white':
-                selectedDate?.endsWith('-' + String(day).padStart(2,'0')),
-              'bg-gray-200 text-gray-400 cursor-not-allowed':
-                isDateFullyBooked(fullDate(day))
-            }"
-          >
-            {{ day }}
-          </button>
+          <div class="grid grid-cols-7 gap-2">
+            <div v-for="i in firstDay" :key="'e'+i"></div>
+
+            <button
+              v-for="day in daysInMonth"
+              :key="day"
+              :disabled="isDateFullyBooked(fullDate(day))"
+              @click="!isDateFullyBooked(fullDate(day)) && selectDate(day)"
+              class="h-9 rounded-full text-sm transition"
+              :class="{
+                'bg-black text-white':
+                  selectedDate?.endsWith('-' + String(day).padStart(2,'0')),
+                'bg-gray-200 text-gray-400 cursor-not-allowed':
+                  isDateFullyBooked(fullDate(day))
+              }"
+            >
+              {{ day }}
+            </button>
+          </div>
         </div>
       </div>
 
       <!-- TIME -->
       <div class="w-72">
-        <p class="mb-4 font-medium">เลือกเวลา</p>
+        <p class="mb-6 font-medium">เลือกเวลา</p>
 
-        <div class="space-y-6">
+        <div class="space-y-8">
           <button
             v-for="time in times"
             :key="time"
