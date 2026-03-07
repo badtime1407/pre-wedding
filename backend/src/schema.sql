@@ -26,6 +26,10 @@ CREATE TABLE IF NOT EXISTS bookings (
   time TEXT NOT NULL,
   customer_name TEXT NOT NULL,
   customer_phone TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending',
+  package_id INTEGER,
+  note TEXT,
   created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY(user_id) REFERENCES users(id)
+  FOREIGN KEY(user_id) REFERENCES users(id),
+  FOREIGN KEY(package_id) REFERENCES packages(id)
 );
