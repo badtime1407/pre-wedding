@@ -3,20 +3,20 @@ import { ref, computed, onMounted } from "vue"
 
 const bookings = ref([])
 const packages = ref([])
-const loading = ref(true)
-const error = ref("")
+const loading  = ref(true)
+const error    = ref("")
 
 const filterStatus = ref("all")
-const searchQuery = ref("")
-const filterFrom = ref("")
-const filterTo = ref("")
-const currentPage = ref(1)
-const perPage = 10
+const searchQuery  = ref("")
+const filterFrom   = ref("")
+const filterTo     = ref("")
+const currentPage  = ref(1)
+const perPage      = 10
 
 // Modals
-const showDetail   = ref(false)
-const showAssign   = ref(false)
-const showConfirm  = ref(false)
+const showDetail     = ref(false)
+const showAssign     = ref(false)
+const showConfirm    = ref(false)
 const showReschedule = ref(false)
 
 const selectedBooking = ref(null)
@@ -27,8 +27,8 @@ const assignPkgId = ref(null)
 const assignNote  = ref("")
 
 // Reschedule form
-const rescheduleDate = ref("")
-const rescheduleTime = ref("")
+const rescheduleDate  = ref("")
+const rescheduleTime  = ref("")
 const rescheduleError = ref("")
 
 // Toast
@@ -77,9 +77,12 @@ const counts = computed(() => ({
 
 const filtered = computed(() => {
   let list = [...bookings.value]
-  if (filterStatus.value !== "all") list = list.filter((b) => b.status === filterStatus.value)
-  if (filterFrom.value) list = list.filter((b) => b.date >= filterFrom.value)
-  if (filterTo.value)   list = list.filter((b) => b.date <= filterTo.value)
+  if (filterStatus.value !== "all")
+    list = list.filter((b) => b.status === filterStatus.value)
+  if (filterFrom.value)
+    list = list.filter((b) => b.date >= filterFrom.value)
+  if (filterTo.value)
+    list = list.filter((b) => b.date <= filterTo.value)
   if (searchQuery.value.trim()) {
     const q = searchQuery.value.toLowerCase()
     list = list.filter(
@@ -91,7 +94,9 @@ const filtered = computed(() => {
   return list
 })
 
-const totalPages = computed(() => Math.max(1, Math.ceil(filtered.value.length / perPage)))
+const totalPages = computed(() =>
+  Math.max(1, Math.ceil(filtered.value.length / perPage))
+)
 
 const paginated = computed(() => {
   const start = (currentPage.value - 1) * perPage
@@ -100,7 +105,7 @@ const paginated = computed(() => {
 
 function setFilter(s) {
   filterStatus.value = s
-  currentPage.value = 1
+  currentPage.value  = 1
 }
 
 /* ── OPEN MODALS ── */
@@ -111,22 +116,22 @@ function openDetail(b) {
 
 function openConfirm(type, booking) {
   confirmAction.value = { type, booking }
-  showConfirm.value = true
+  showConfirm.value   = true
 }
 
 function openAssign(b) {
   selectedBooking.value = b
-  assignPkgId.value = b.package_id ?? null
-  assignNote.value  = b.note ?? ""
-  showAssign.value  = true
+  assignPkgId.value     = b.package_id ?? null
+  assignNote.value      = b.note ?? ""
+  showAssign.value      = true
 }
 
 function openReschedule(b) {
-  selectedBooking.value    = b
-  rescheduleDate.value     = b.date ?? ""
-  rescheduleTime.value     = b.time ?? ""
-  rescheduleError.value    = ""
-  showReschedule.value     = true
+  selectedBooking.value = b
+  rescheduleDate.value  = b.date ?? ""
+  rescheduleTime.value  = b.time ?? ""
+  rescheduleError.value = ""
+  showReschedule.value  = true
 }
 
 /* ── ACTIONS ── */
@@ -148,7 +153,7 @@ async function runConfirm() {
     )
     if (!res.ok) throw new Error()
     confirmAction.value.booking.status = "cancelled"
-    showToast("ยกเลิกการจองสำเร็จ", "success")
+    showToast("ยกเลิกการจองสำเร็จ")
   } catch {
     showToast("เกิดข้อผิดพลาด", "error")
   }
@@ -232,7 +237,7 @@ const statusClass = (s) =>
     cancelled: "bg-red-50 text-red-700 border border-red-200",
   }[s])
 
-const thaiShort = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."]
+const thaiShort  = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."]
 const thaiMonths = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"]
 
 function formatDate(d) {
@@ -256,17 +261,14 @@ const timeSlots = [
 <template>
 <div class="min-h-screen bg-[#f6eee1] flex">
 
-  <!-- SIDEBAR SLOT (ใส่ <sidebar/> ได้เลย) -->
   <sidebar />
 
   <div class="flex-1 p-6 overflow-auto">
 
     <!-- HEADER -->
-    <div class="mb-6 flex items-center justify-between">
-      <div>
-        <h1 class="text-2xl font-bold text-[#2c2218]">จัดการการจอง</h1>
-        <p class="text-sm text-[#9e8e80] mt-0.5">ทั้งหมด {{ filtered.length }} รายการ</p>
-      </div>
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-[#2c2218]">จัดการการจอง</h1>
+      <p class="text-sm text-[#9e8e80] mt-0.5">ทั้งหมด {{ filtered.length }} รายการ</p>
     </div>
 
     <!-- FILTER BAR -->
@@ -364,39 +366,13 @@ const timeSlots = [
               </span>
             </td>
 
+            <!-- ปุ่มเดียว ⋯ -->
             <td class="px-5 py-4" @click.stop>
-              <div class="flex gap-1.5">
-                <!-- เลื่อนนัด -->
-                <button
-                  v-if="b.status !== 'cancelled'"
-                  @click="openReschedule(b)"
-                  title="เลื่อนนัด"
-                  class="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition text-sm"
-                >📅</button>
-
-                <!-- กำหนดแพ็คเกจ -->
-                <button
-                  v-if="b.status !== 'cancelled'"
-                  @click="openAssign(b)"
-                  title="กำหนดแพ็คเกจ"
-                  class="w-8 h-8 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition text-sm"
-                >📦</button>
-
-                <!-- ยกเลิก -->
-                <button
-                  v-if="b.status !== 'cancelled'"
-                  @click="openConfirm('cancel', b)"
-                  title="ยกเลิก"
-                  class="w-8 h-8 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition text-sm font-bold"
-                >✕</button>
-
-                <!-- ดูรายละเอียด -->
-                <button
-                  @click="openDetail(b)"
-                  title="รายละเอียด"
-                  class="w-8 h-8 bg-[#f0ece7] text-[#7a6a5a] rounded-lg hover:bg-[#e7dcc7] transition text-base"
-                >⋯</button>
-              </div>
+              <button
+                @click="openDetail(b)"
+                title="รายละเอียด"
+                class="w-8 h-8 bg-[#f0ece7] text-[#7a6a5a] rounded-lg hover:bg-[#e7dcc7] transition text-base"
+              >⋯</button>
             </td>
           </tr>
         </tbody>
@@ -404,26 +380,22 @@ const timeSlots = [
 
       <!-- PAGINATION -->
       <div v-if="totalPages > 1" class="flex items-center justify-between px-5 py-3 border-t border-[#f0ece7]">
-        <p class="text-xs text-[#9e8e80]">
-          หน้า {{ currentPage }} / {{ totalPages }}
-        </p>
+        <p class="text-xs text-[#9e8e80]">หน้า {{ currentPage }} / {{ totalPages }}</p>
         <div class="flex gap-2">
-          <button
-            @click="currentPage--"
-            :disabled="currentPage === 1"
-            class="px-3 py-1.5 rounded-lg border text-xs disabled:opacity-30 hover:bg-[#f0ece7] transition"
-          >‹ ก่อนหน้า</button>
-          <button
-            @click="currentPage++"
-            :disabled="currentPage === totalPages"
-            class="px-3 py-1.5 rounded-lg border text-xs disabled:opacity-30 hover:bg-[#f0ece7] transition"
-          >ถัดไป ›</button>
+          <button @click="currentPage--" :disabled="currentPage === 1"
+            class="px-3 py-1.5 rounded-lg border text-xs disabled:opacity-30 hover:bg-[#f0ece7] transition">
+            ‹ ก่อนหน้า
+          </button>
+          <button @click="currentPage++" :disabled="currentPage === totalPages"
+            class="px-3 py-1.5 rounded-lg border text-xs disabled:opacity-30 hover:bg-[#f0ece7] transition">
+            ถัดไป ›
+          </button>
         </div>
       </div>
     </div>
 
-  </div><!-- end flex-1 -->
-</div><!-- end outer -->
+  </div>
+</div>
 
 
 <!-- ═══════════════════════════════
@@ -436,6 +408,7 @@ const timeSlots = [
     @click.self="showDetail = false">
     <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
 
+      <!-- Header -->
       <div class="flex items-start justify-between px-6 pt-6 pb-4 border-b border-[#ede8e2]">
         <div>
           <h2 class="text-lg font-bold text-[#2c2218]">{{ selectedBooking?.customer_name }}</h2>
@@ -445,16 +418,27 @@ const timeSlots = [
           class="w-8 h-8 rounded-full bg-[#f0ece7] hover:bg-[#e3dcd4] transition text-sm">✕</button>
       </div>
 
+      <!-- Info -->
       <div class="px-6 py-5 space-y-4">
         <div class="grid grid-cols-2 gap-3 bg-[#faf7f3] rounded-xl p-4 text-sm">
-          <div><p class="text-xs text-[#a08c7a]">เบอร์โทร</p><p class="font-semibold">{{ selectedBooking?.customer_phone }}</p></div>
-          <div><p class="text-xs text-[#a08c7a]">สถานะ</p>
+          <div>
+            <p class="text-xs text-[#a08c7a]">เบอร์โทร</p>
+            <p class="font-semibold">{{ selectedBooking?.customer_phone }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-[#a08c7a]">สถานะ</p>
             <span class="text-xs px-2 py-0.5 rounded-full" :class="statusClass(selectedBooking?.status)">
               {{ statusLabel(selectedBooking?.status) }}
             </span>
           </div>
-          <div><p class="text-xs text-[#a08c7a]">วันที่</p><p class="font-semibold">{{ formatDate(selectedBooking?.date) }}</p></div>
-          <div><p class="text-xs text-[#a08c7a]">เวลา</p><p class="font-semibold">{{ selectedBooking?.time }}</p></div>
+          <div>
+            <p class="text-xs text-[#a08c7a]">วันที่</p>
+            <p class="font-semibold">{{ formatDate(selectedBooking?.date) }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-[#a08c7a]">เวลา</p>
+            <p class="font-semibold">{{ selectedBooking?.time }}</p>
+          </div>
           <div v-if="selectedBooking?.package_name">
             <p class="text-xs text-[#a08c7a]">แพ็คเกจ</p>
             <p class="font-semibold">{{ selectedBooking?.package_name }}</p>
@@ -465,6 +449,7 @@ const timeSlots = [
           </div>
         </div>
 
+        <!-- Action buttons -->
         <div v-if="selectedBooking?.status !== 'cancelled'" class="flex gap-2">
           <button @click="openReschedule(selectedBooking); showDetail = false"
             class="flex-1 py-2 rounded-xl bg-blue-50 text-blue-700 text-sm hover:bg-blue-100 transition">
@@ -480,6 +465,7 @@ const timeSlots = [
           </button>
         </div>
       </div>
+
     </div>
   </div>
 </Transition>
@@ -497,7 +483,8 @@ const timeSlots = [
       <div class="text-3xl mb-3 text-center">⚠️</div>
       <h3 class="font-bold text-[#2c2218] text-center mb-1">ยืนยันการยกเลิก?</h3>
       <p class="text-sm text-[#9e8e80] text-center mb-5">
-        การจองของ <span class="font-semibold text-[#2c2218]">{{ confirmAction?.booking?.customer_name }}</span><br/>
+        การจองของ
+        <span class="font-semibold text-[#2c2218]">{{ confirmAction?.booking?.customer_name }}</span><br/>
         วันที่ {{ formatDateShort(confirmAction?.booking?.date) }} เวลา {{ confirmAction?.booking?.time }}
       </p>
       <div class="flex gap-3">
@@ -542,15 +529,11 @@ const timeSlots = [
             </option>
           </select>
         </div>
-
         <div>
           <label class="block text-xs text-[#a08c7a] mb-1.5">หมายเหตุ (ถ้ามี)</label>
-          <textarea v-model="assignNote"
-            placeholder="เพิ่มหมายเหตุ..."
-            rows="3"
+          <textarea v-model="assignNote" placeholder="เพิ่มหมายเหตุ..." rows="3"
             class="w-full border border-[#ddd5c8] rounded-xl px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#9c7f5e]/30"/>
         </div>
-
         <div class="flex gap-2 pt-1">
           <button @click="showAssign = false"
             class="flex-1 py-2 rounded-xl border border-[#ddd5c8] text-sm hover:bg-[#faf7f3] transition">
@@ -562,6 +545,7 @@ const timeSlots = [
           </button>
         </div>
       </div>
+
     </div>
   </div>
 </Transition>
@@ -592,7 +576,6 @@ const timeSlots = [
           <input v-model="rescheduleDate" type="date"
             class="w-full border border-[#ddd5c8] rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9c7f5e]/30"/>
         </div>
-
         <div>
           <label class="block text-xs text-[#a08c7a] mb-1.5">เวลาใหม่</label>
           <select v-model="rescheduleTime"
@@ -601,11 +584,9 @@ const timeSlots = [
             <option v-for="t in timeSlots" :key="t" :value="t">{{ t }}</option>
           </select>
         </div>
-
         <p v-if="rescheduleError" class="text-xs text-red-500 bg-red-50 px-3 py-2 rounded-lg">
           {{ rescheduleError }}
         </p>
-
         <div class="flex gap-2 pt-1">
           <button @click="showReschedule = false"
             class="flex-1 py-2 rounded-xl border border-[#ddd5c8] text-sm hover:bg-[#faf7f3] transition">
@@ -617,24 +598,23 @@ const timeSlots = [
           </button>
         </div>
       </div>
+
     </div>
   </div>
 </Transition>
 
 
-  <!-- ═══════════════════════════════
-      TOAST NOTIFICATION
-  ═══════════════════════════════ -->
-  <Transition enter-active-class="transition duration-300" enter-from-class="opacity-0 translate-y-2"
-              leave-active-class="transition duration-200" leave-to-class="opacity-0 translate-y-2">
-    <div v-if="toast.show"
-      class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] px-5 py-3 rounded-2xl shadow-xl text-sm font-medium flex items-center gap-2"
-      :class="toast.type === 'success'
-        ? 'bg-[#2c2218] text-white'
-        : 'bg-red-500 text-white'">
-      <span>{{ toast.type === 'success' ? '✓' : '✕' }}</span>
-      {{ toast.msg }}
-    </div>
-  </Transition>
+<!-- ═══════════════════════════════
+     TOAST
+═══════════════════════════════ -->
+<Transition enter-active-class="transition duration-300" enter-from-class="opacity-0 translate-y-2"
+            leave-active-class="transition duration-200" leave-to-class="opacity-0 translate-y-2">
+  <div v-if="toast.show"
+    class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] px-5 py-3 rounded-2xl shadow-xl text-sm font-medium flex items-center gap-2"
+    :class="toast.type === 'success' ? 'bg-[#2c2218] text-white' : 'bg-red-500 text-white'">
+    <span>{{ toast.type === 'success' ? '✓' : '✕' }}</span>
+    {{ toast.msg }}
+  </div>
+</Transition>
 
 </template>

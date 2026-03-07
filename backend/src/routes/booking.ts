@@ -133,6 +133,49 @@ booking.get("/occupied", async (c) => {
 
 
 /* =====================================================
+   ดึง notifications ของ user
+   ⚠️ ต้องอยู่เหนือ /:id routes ทั้งหมด
+===================================================== */
+booking.get("/notifications", authMiddleware, async (c) => {
+
+  const user = c.get("user")
+  const db = c.env.pre_wedding
+
+  const result = await db
+    .prepare(`
+      SELECT * FROM notifications
+      WHERE user_id = ?
+      ORDER BY created_at DESC
+      LIMIT 20
+    `)
+    .bind(user.id)
+    .all()
+
+  return c.json(result.results)
+
+})
+
+
+/* =====================================================
+   Mark notification as read
+   ⚠️ ต้องอยู่เหนือ /:id/status, /:id/reschedule ฯลฯ
+===================================================== */
+booking.patch("/notifications/:id/read", authMiddleware, async (c) => {
+
+  const db = c.env.pre_wedding
+  const id = c.req.param("id")
+
+  await db
+    .prepare(`UPDATE notifications SET is_read = 1 WHERE id = ?`)
+    .bind(id)
+    .run()
+
+  return c.json({ message: "ok" })
+
+})
+
+
+/* =====================================================
    Admin ยืนยัน / ยกเลิก
 ===================================================== */
 booking.patch("/:id/status", authMiddleware, async (c) => {
@@ -158,6 +201,20 @@ booking.patch("/:id/status", authMiddleware, async (c) => {
     .prepare(`UPDATE bookings SET status = ? WHERE id = ?`)
     .bind(status, id)
     .run()
+
+  // แจ้งเตือนลูกค้าเมื่อถูกยกเลิก
+  if (status === "cancelled") {
+    await db
+      .prepare(`
+        INSERT INTO notifications (user_id, title, message)
+        SELECT user_id,
+               'ยกเลิกการจองแล้ว',
+               'การจองของคุณวันที่ ' || date || ' เวลา ' || time || ' ถูกยกเลิกโดยทีมงาน'
+        FROM bookings WHERE id = ?
+      `)
+      .bind(id)
+      .run()
+  }
 
   return c.json({ message: "อัปเดตสถานะสำเร็จ" })
 
@@ -191,7 +248,7 @@ booking.patch("/:id/package", authMiddleware, async (c) => {
 
 
 /* =====================================================
-   Admin เลื่อนนัด  ✅ แก้แล้ว — ไม่เช็ค slot ของตัวเอง
+   Admin เลื่อนนัด
 ===================================================== */
 booking.patch("/:id/reschedule", authMiddleware, async (c) => {
 
@@ -210,7 +267,7 @@ booking.patch("/:id/reschedule", authMiddleware, async (c) => {
 
   const db = c.env.pre_wedding
 
-  // ตรวจ slot ที่ซ้ำ โดยข้าม booking ตัวเองด้วย AND id != ?
+  // ตรวจ slot ซ้ำ โดยข้าม booking ตัวเองด้วย AND id != ?
   const existing = await db
     .prepare(`
       SELECT id FROM bookings
@@ -227,6 +284,18 @@ booking.patch("/:id/reschedule", authMiddleware, async (c) => {
 
   await db
     .prepare(`UPDATE bookings SET date = ?, time = ? WHERE id = ?`)
+    .bind(date, time, id)
+    .run()
+
+  // แจ้งเตือนลูกค้าเมื่อถูกเลื่อนนัด
+  await db
+    .prepare(`
+      INSERT INTO notifications (user_id, title, message)
+      SELECT user_id,
+             'เลื่อนนัดหมายแล้ว',
+             'การจองของคุณถูกเลื่อนเป็นวันที่ ' || ? || ' เวลา ' || ?
+      FROM bookings WHERE id = ?
+    `)
     .bind(date, time, id)
     .run()
 
