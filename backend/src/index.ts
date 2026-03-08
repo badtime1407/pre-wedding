@@ -5,6 +5,7 @@ import { admin } from "./routes/admin"
 import { userRoute } from "./routes/user"
 import { packagesRoute } from "./routes/packages"
 import { booking } from "./routes/booking"
+import { uploadRoute } from "./routes/upload"
 
 
 const app = new Hono()
@@ -20,5 +21,6 @@ app.route("/admin", admin)
 app.route("/user", userRoute)
 app.route("/packages", packagesRoute)
 app.route("/bookings", booking)
+app.route("/upload", uploadRoute)
 
 export default app

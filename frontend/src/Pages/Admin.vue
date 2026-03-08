@@ -69,10 +69,11 @@ async function loadPackages() {
 
 /* ── FILTERS ── */
 const counts = computed(() => ({
-  all:       bookings.value.length,
-  confirmed: bookings.value.filter((b) => b.status === "confirmed").length,
-  cancelled: bookings.value.filter((b) => b.status === "cancelled").length,
-  pending:   bookings.value.filter((b) => b.status === "pending").length,
+  all:         bookings.value.length,
+  pending:     bookings.value.filter((b) => b.status === "pending").length,
+  in_progress: bookings.value.filter((b) => b.status === "in_progress").length,
+  completed:   bookings.value.filter((b) => b.status === "completed").length,
+  cancelled:   bookings.value.filter((b) => b.status === "cancelled").length,
 }))
 
 const filtered = computed(() => {
@@ -132,6 +133,34 @@ function openReschedule(b) {
   rescheduleTime.value  = b.time ?? ""
   rescheduleError.value = ""
   showReschedule.value  = true
+}
+
+/* ── UPDATE STATUS (inline dropdown) ── */
+async function updateStatus(booking, newStatus) {
+  const token = localStorage.getItem("token")
+  try {
+    const url = `${import.meta.env.VITE_API_URL}/bookings/${booking.id}/status`
+    const res = await fetch(url, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ status: newStatus }),
+    })
+
+    const data = await res.json().catch(() => ({}))
+
+    if (!res.ok) {
+      showToast(data.message || `ผิดพลาด (${res.status})`, "error")
+      return
+    }
+
+    booking.status = newStatus
+    showToast("อัปเดตสถานะสำเร็จ")
+  } catch (e) {
+    showToast("เชื่อมต่อ server ไม่ได้", "error")
+  }
 }
 
 /* ── ACTIONS ── */
@@ -228,13 +257,21 @@ function bid(id) {
 }
 
 const statusLabel = (s) =>
-  ({ pending: "รอดำเนินการ", confirmed: "ยืนยันแล้ว", cancelled: "ยกเลิก" }[s] ?? s)
+  ({
+    pending:     "รอดำเนินการ",
+    in_progress: "กำลังดำเนินการ",
+    completed:   "เสร็จสิ้น",
+    confirmed:   "ยืนยันแล้ว",
+    cancelled:   "ยกเลิก",
+  }[s] ?? s)
 
 const statusClass = (s) =>
   ({
-    pending:   "bg-amber-50 text-amber-700 border border-amber-200",
-    confirmed: "bg-green-50 text-green-700 border border-green-200",
-    cancelled: "bg-red-50 text-red-700 border border-red-200",
+    pending:     "bg-amber-50 text-amber-700 border border-amber-200",
+    in_progress: "bg-blue-50 text-blue-700 border border-blue-200",
+    completed:   "bg-emerald-50 text-emerald-700 border border-emerald-200",
+    confirmed:   "bg-green-50 text-green-700 border border-green-200",
+    cancelled:   "bg-red-50 text-red-700 border border-red-200",
   }[s])
 
 const thaiShort  = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."]
@@ -292,10 +329,11 @@ const timeSlots = [
     <div class="flex gap-2 mb-5 flex-wrap">
       <button
         v-for="tab in [
-          { key:'all',       label:'ทั้งหมด' },
-          { key:'confirmed', label:'ยืนยันแล้ว' },
-          { key:'pending',   label:'รอดำเนินการ' },
-          { key:'cancelled', label:'ยกเลิก' },
+          { key:'all',         label:'ทั้งหมด' },
+          { key:'pending',     label:'รอดำเนินการ' },
+          { key:'in_progress', label:'กำลังดำเนินการ' },
+          { key:'completed',   label:'เสร็จสิ้น' },
+          { key:'cancelled',   label:'ยกเลิก' },
         ]"
         :key="tab.key"
         @click="setFilter(tab.key)"
@@ -360,13 +398,23 @@ const timeSlots = [
               <span v-else class="text-[#c5b9ac] text-xs">-</span>
             </td>
 
-            <td class="px-5 py-4">
-              <span class="text-xs px-2 py-1 rounded-full" :class="statusClass(b.status)">
-                {{ statusLabel(b.status) }}
-              </span>
+            <!-- STATUS DROPDOWN -->
+            <td class="px-5 py-4" @click.stop>
+              <select
+                :value="b.status"
+                @change="updateStatus(b, $event.target.value)"
+                class="text-xs px-2 py-1.5 rounded-full border cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#9c7f5e]/30 transition appearance-none pr-6 bg-no-repeat"
+                :class="statusClass(b.status)"
+                style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 20 20%22 fill=%22%239e8e80%22><path fill-rule=%22evenodd%22 d=%22M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z%22 clip-rule=%22evenodd%22/></svg>'); background-position: right 4px center; background-size: 14px;"
+              >
+                <option value="pending">รอดำเนินการ</option>
+                <option value="in_progress">กำลังดำเนินการ</option>
+                <option value="completed">เสร็จสิ้น</option>
+                <option value="cancelled">ยกเลิก</option>
+              </select>
             </td>
 
-            <!-- ปุ่มเดียว ⋯ -->
+            <!-- ปุ่ม ⋯ -->
             <td class="px-5 py-4" @click.stop>
               <button
                 @click="openDetail(b)"

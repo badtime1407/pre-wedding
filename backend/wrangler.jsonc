@@ -22,12 +22,12 @@
 	//     "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 	//   }
 	// ],
-	// "r2_buckets": [
-	//   {
-	//     "binding": "MY_BUCKET",
-	//     "bucket_name": "my-bucket"
-	//   }
-	// ],
+	"r2_buckets": [
+	  {
+	    "binding": "prewedding",
+	    "bucket_name": "pre-wedding-images"
+	  }
+	],
 	// "d1_databases": [
 	//   {
 	//     "binding": "MY_DB",

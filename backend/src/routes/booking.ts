@@ -42,7 +42,7 @@ booking.post("/", authMiddleware, async (c) => {
       time,
       customer_name,
       customer_phone,
-      "confirmed"
+      "pending"
     )
     .run()
 
@@ -176,7 +176,7 @@ booking.patch("/notifications/:id/read", authMiddleware, async (c) => {
 
 
 /* =====================================================
-   Admin ยืนยัน / ยกเลิก
+   Admin เปลี่ยนสถานะ
 ===================================================== */
 booking.patch("/:id/status", authMiddleware, async (c) => {
 
@@ -187,12 +187,13 @@ booking.patch("/:id/status", authMiddleware, async (c) => {
   }
 
   const id = c.req.param("id")
-  const { status } = await c.req.json()
+  const body = await c.req.json()
+  const status = body.status
 
-  const allowed = ["pending", "confirmed", "cancelled"]
+  const allowed = ["pending", "in_progress", "completed", "cancelled"]
 
   if (!allowed.includes(status)) {
-    return c.json({ message: "สถานะไม่ถูกต้อง" }, 400)
+    return c.json({ message: `สถานะ '${status}' ไม่ถูกต้อง` }, 400)
   }
 
   const db = c.env.pre_wedding
@@ -202,7 +203,6 @@ booking.patch("/:id/status", authMiddleware, async (c) => {
     .bind(status, id)
     .run()
 
-  // แจ้งเตือนลูกค้าเมื่อถูกยกเลิก
   if (status === "cancelled") {
     await db
       .prepare(`
@@ -210,6 +210,32 @@ booking.patch("/:id/status", authMiddleware, async (c) => {
         SELECT user_id,
                'ยกเลิกการจองแล้ว',
                'การจองของคุณวันที่ ' || date || ' เวลา ' || time || ' ถูกยกเลิกโดยทีมงาน'
+        FROM bookings WHERE id = ?
+      `)
+      .bind(id)
+      .run()
+  }
+
+  if (status === "in_progress") {
+    await db
+      .prepare(`
+        INSERT INTO notifications (user_id, title, message)
+        SELECT user_id,
+               'กำลังดำเนินการ',
+               'การจองของคุณวันที่ ' || date || ' เวลา ' || time || ' กำลังดำเนินการอยู่'
+        FROM bookings WHERE id = ?
+      `)
+      .bind(id)
+      .run()
+  }
+
+  if (status === "completed") {
+    await db
+      .prepare(`
+        INSERT INTO notifications (user_id, title, message)
+        SELECT user_id,
+               'ดำเนินการเสร็จสิ้น',
+               'การจองของคุณวันที่ ' || date || ' เวลา ' || time || ' เสร็จสิ้นแล้ว ขอบคุณที่ใช้บริการ'
         FROM bookings WHERE id = ?
       `)
       .bind(id)
@@ -267,7 +293,6 @@ booking.patch("/:id/reschedule", authMiddleware, async (c) => {
 
   const db = c.env.pre_wedding
 
-  // ตรวจ slot ซ้ำ โดยข้าม booking ตัวเองด้วย AND id != ?
   const existing = await db
     .prepare(`
       SELECT id FROM bookings
@@ -287,7 +312,6 @@ booking.patch("/:id/reschedule", authMiddleware, async (c) => {
     .bind(date, time, id)
     .run()
 
-  // แจ้งเตือนลูกค้าเมื่อถูกเลื่อนนัด
   await db
     .prepare(`
       INSERT INTO notifications (user_id, title, message)
