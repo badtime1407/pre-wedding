@@ -16,7 +16,7 @@ import Admintimetable from '../Pages/Admintimetable.vue'
 
 const routes = [
   { path: '/', component: Home },
-  { path: '/booking', component: Booking },
+  { path: '/booking', component: Booking ,meta: { requiresAuth: true }},
   { path: '/gallery', component: Gallery },
   { path: "/login", component: Login, meta: { hideNavbar: true, hideFooter: true},},
   { path: "/packages", component: Packages },
