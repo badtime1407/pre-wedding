@@ -11,7 +11,8 @@ const editTarget = ref(null)
 const delTarget  = ref(null)
 
 const form = ref({
-  name: "", description: "", price: "", image_url: "", type: "event"
+  name: "", description: "", price: "", image_url: "", type: "event",
+  sale_price: "", sale_start: "", sale_end: ""
 })
 const formError    = ref("")
 const formSaving   = ref(false)
@@ -46,7 +47,7 @@ async function loadPackages() {
 
 function openAdd() {
   editTarget.value  = null
-  form.value        = { name: "", description: "", price: "", image_url: "", type: "event" }
+  form.value        = { name: "", description: "", price: "", image_url: "", type: "event", sale_price: "", sale_start: "", sale_end: "" }
   formError.value   = ""
   uploadError.value = ""
   previewUrl.value  = ""
@@ -61,6 +62,9 @@ function openEdit(pkg) {
     price:       pkg.price       ?? "",
     image_url:   pkg.image_url   ?? "",
     type:        pkg.type        ?? "event",
+    sale_price:  pkg.sale_price  ?? "",
+    sale_start:  pkg.sale_start  ?? "",
+    sale_end:    pkg.sale_end    ?? "",
   }
   formError.value   = ""
   uploadError.value = ""
@@ -76,29 +80,20 @@ function openDelete(pkg) {
 async function handleFileChange(e) {
   const file = e.target.files?.[0]
   if (!file) return
-
   uploadError.value = ""
   uploading.value   = true
   previewUrl.value  = URL.createObjectURL(file)
-
   try {
     const token = localStorage.getItem("token")
     const fd    = new FormData()
     fd.append("file", file)
-
     const res  = await fetch(`${import.meta.env.VITE_API_URL}/packages/upload`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
       body: fd,
     })
     const data = await res.json().catch(() => ({}))
-
-    if (!res.ok) {
-      uploadError.value = data.message || "อัปโหลดไม่สำเร็จ"
-      previewUrl.value  = form.value.image_url
-      return
-    }
-
+    if (!res.ok) { uploadError.value = data.message || "อัปโหลดไม่สำเร็จ"; previewUrl.value = form.value.image_url; return }
     form.value.image_url = data.url
     previewUrl.value     = data.url
   } catch {
@@ -111,9 +106,12 @@ async function handleFileChange(e) {
 
 async function savePackage() {
   formError.value = ""
-  if (!form.value.name.trim())                       return (formError.value = "กรุณากรอกชื่อแพ็คเกจ")
+  if (!form.value.name.trim())                              return (formError.value = "กรุณากรอกชื่อแพ็คเกจ")
   if (!form.value.price || isNaN(Number(form.value.price))) return (formError.value = "กรุณากรอกราคาให้ถูกต้อง")
-  if (uploading.value)                               return (formError.value = "กรุณารอให้อัปโหลดรูปเสร็จก่อน")
+  if (form.value.sale_price && isNaN(Number(form.value.sale_price))) return (formError.value = "ราคาโปรโมชั่นไม่ถูกต้อง")
+  if (form.value.sale_price && Number(form.value.sale_price) >= Number(form.value.price)) return (formError.value = "ราคาโปรโมชั่นต้องน้อยกว่าราคาปกติ")
+  if (form.value.sale_price && (!form.value.sale_start || !form.value.sale_end)) return (formError.value = "กรุณากรอกวันเริ่ม-สิ้นสุดโปรโมชั่น")
+  if (uploading.value) return (formError.value = "กรุณารอให้อัปโหลดรูปเสร็จก่อน")
 
   formSaving.value = true
   const token = localStorage.getItem("token")
@@ -123,6 +121,9 @@ async function savePackage() {
     price:       Number(form.value.price),
     image_url:   form.value.image_url.trim(),
     type:        form.value.type,
+    sale_price:  form.value.sale_price ? Number(form.value.sale_price) : null,
+    sale_start:  form.value.sale_start || null,
+    sale_end:    form.value.sale_end   || null,
   }
 
   try {
@@ -140,13 +141,11 @@ async function savePackage() {
         body: JSON.stringify(body),
       })
     }
-
     if (!res.ok) {
       const d = await res.json().catch(() => ({}))
       formError.value = d.message || `ผิดพลาด (${res.status})`
       return
     }
-
     showForm.value = false
     showToast(editTarget.value ? "แก้ไขแพ็คเกจสำเร็จ" : "เพิ่มแพ็คเกจสำเร็จ")
     await loadPackages()
@@ -174,6 +173,14 @@ async function confirmDelete() {
   }
 }
 
+/* ── ตรวจสอบว่าโปรโมชั่นยังใช้งานอยู่ไหม ── */
+function isOnSale(pkg) {
+  if (!pkg.sale_price || !pkg.sale_start || !pkg.sale_end) return false
+  const now = new Date()
+  const localDate = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`
+  return localDate >= pkg.sale_start && localDate <= pkg.sale_end
+}
+
 const typeLabel = (t) => ({ "event": "การจัดงาน", "pre-wedding": "พรีเวดดิ้ง" }[t] ?? t)
 const typeClass = (t) => ({
   "event":       "bg-rose-50 text-rose-600 border border-rose-200",
@@ -185,9 +192,7 @@ const totalCount = computed(() => packages.value.length)
 
 <template>
 <div class="min-h-screen bg-[#f6eee1] flex">
-
   <sidebar />
-
   <div class="flex-1 p-6 overflow-auto">
 
     <div class="flex items-center justify-between mb-6">
@@ -204,12 +209,9 @@ const totalCount = computed(() => packages.value.length)
     <div v-if="loading" class="flex justify-center py-20">
       <div class="w-8 h-8 border-4 border-[#e7dcc7] border-t-[#9c7f5e] rounded-full animate-spin"/>
     </div>
-
     <p v-else-if="error" class="text-center text-red-500 py-12">{{ error }}</p>
-
     <div v-else-if="packages.length === 0" class="text-center py-16 text-[#a89880]">
-      <div class="text-4xl mb-3">📦</div>
-      <p>ยังไม่มีแพ็คเกจ</p>
+      <div class="text-4xl mb-3">📦</div><p>ยังไม่มีแพ็คเกจ</p>
     </div>
 
     <div v-else class="bg-white rounded-2xl border border-[#ede8e2] overflow-hidden">
@@ -220,6 +222,7 @@ const totalCount = computed(() => packages.value.length)
             <th class="px-5 py-3 text-left text-xs text-[#9e8e80] font-medium">ชื่อแพ็คเกจ</th>
             <th class="px-5 py-3 text-left text-xs text-[#9e8e80] font-medium">ประเภท</th>
             <th class="px-5 py-3 text-left text-xs text-[#9e8e80] font-medium">ราคา</th>
+            <th class="px-5 py-3 text-left text-xs text-[#9e8e80] font-medium">โปรโมชั่น</th>
             <th class="px-5 py-3 text-left text-xs text-[#9e8e80] font-medium">รายละเอียด</th>
             <th class="px-5 py-3 text-left text-xs text-[#9e8e80] font-medium">จัดการ</th>
           </tr>
@@ -227,35 +230,45 @@ const totalCount = computed(() => packages.value.length)
         <tbody>
           <tr v-for="pkg in packages" :key="pkg.id"
             class="border-b border-[#f0ece7] hover:bg-[#faf7f3] transition">
+
             <td class="px-5 py-4">
-              <img v-if="pkg.image_url" :src="pkg.image_url"
-                class="w-12 h-12 rounded-xl object-cover border border-[#ede8e2]"/>
+              <img v-if="pkg.image_url" :src="pkg.image_url" class="w-12 h-12 rounded-xl object-cover border border-[#ede8e2]"/>
               <div v-else class="w-12 h-12 rounded-xl bg-[#f0ece7] flex items-center justify-center text-[#c5b9ac] text-xl">📷</div>
             </td>
+
             <td class="px-5 py-4">
               <p class="text-sm font-semibold text-[#2c2218]">{{ pkg.name }}</p>
             </td>
+
             <td class="px-5 py-4">
-              <span class="text-xs px-2 py-1 rounded-full" :class="typeClass(pkg.type)">
-                {{ typeLabel(pkg.type) }}
-              </span>
+              <span class="text-xs px-2 py-1 rounded-full" :class="typeClass(pkg.type)">{{ typeLabel(pkg.type) }}</span>
             </td>
+
             <td class="px-5 py-4">
               <p class="text-sm font-semibold text-[#2c2218]">฿{{ pkg.price?.toLocaleString() }}</p>
             </td>
+
+            <!-- PROMOTION COLUMN -->
+            <td class="px-5 py-4">
+              <div v-if="pkg.sale_price">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-sm font-bold text-rose-600">฿{{ pkg.sale_price?.toLocaleString() }}</span>
+                  <span v-if="isOnSale(pkg)" class="text-xs bg-rose-100 text-rose-600 px-1.5 py-0.5 rounded-full">🔥 ใช้งานอยู่</span>
+                  <span v-else class="text-xs bg-gray-100 text-gray-400 px-1.5 py-0.5 rounded-full">หมดแล้ว</span>
+                </div>
+                <p class="text-xs text-[#9e8e80] mt-0.5">{{ pkg.sale_start }} – {{ pkg.sale_end }}</p>
+              </div>
+              <span v-else class="text-[#c5b9ac] text-xs">-</span>
+            </td>
+
             <td class="px-5 py-4 max-w-xs">
               <p class="text-xs text-[#9e8e80] line-clamp-2">{{ pkg.description || "-" }}</p>
             </td>
+
             <td class="px-5 py-4">
               <div class="flex items-center gap-2">
-                <button @click="openEdit(pkg)"
-                  class="px-3 py-1.5 rounded-lg bg-[#f0ece7] text-[#3d2f22] text-xs hover:bg-[#e7dcc7] transition">
-                  ✏️ แก้ไข
-                </button>
-                <button @click="openDelete(pkg)"
-                  class="px-3 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs hover:bg-red-100 transition">
-                  🗑️ ลบ
-                </button>
+                <button @click="openEdit(pkg)" class="px-3 py-1.5 rounded-lg bg-[#f0ece7] text-[#3d2f22] text-xs hover:bg-[#e7dcc7] transition">✏️ แก้ไข</button>
+                <button @click="openDelete(pkg)" class="px-3 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs hover:bg-red-100 transition">🗑️ ลบ</button>
               </div>
             </td>
           </tr>
@@ -276,14 +289,11 @@ const totalCount = computed(() => packages.value.length)
     <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden">
 
       <div class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-[#ede8e2]">
-        <h3 class="font-bold text-[#2c2218]">
-          {{ editTarget ? "✏️ แก้ไขแพ็คเกจ" : "📦 เพิ่มแพ็คเกจใหม่" }}
-        </h3>
-        <button @click="showForm = false"
-          class="w-7 h-7 rounded-full bg-[#f0ece7] hover:bg-[#e3dcd4] transition text-xs">✕</button>
+        <h3 class="font-bold text-[#2c2218]">{{ editTarget ? "✏️ แก้ไขแพ็คเกจ" : "📦 เพิ่มแพ็คเกจใหม่" }}</h3>
+        <button @click="showForm = false" class="w-7 h-7 rounded-full bg-[#f0ece7] hover:bg-[#e3dcd4] transition text-xs">✕</button>
       </div>
 
-      <div class="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
+      <div class="px-6 py-5 space-y-4 max-h-[75vh] overflow-y-auto">
 
         <!-- ชื่อ -->
         <div>
@@ -295,7 +305,7 @@ const totalCount = computed(() => packages.value.length)
         <!-- ราคา + ประเภท -->
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs text-[#a08c7a] mb-1.5">ราคา (บาท) <span class="text-red-400">*</span></label>
+            <label class="block text-xs text-[#a08c7a] mb-1.5">ราคาปกติ (บาท) <span class="text-red-400">*</span></label>
             <input v-model="form.price" type="number" placeholder="25000"
               class="w-full border border-[#ddd5c8] rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9c7f5e]/30"/>
           </div>
@@ -303,7 +313,7 @@ const totalCount = computed(() => packages.value.length)
             <label class="block text-xs text-[#a08c7a] mb-1.5">ประเภท <span class="text-red-400">*</span></label>
             <select v-model="form.type"
               class="w-full border border-[#ddd5c8] rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9c7f5e]/30 bg-white">
-              <option value="event">งานแต่ง</option>
+              <option value="event">การจัดงาน</option>
               <option value="pre-wedding">พรีเวดดิ้ง</option>
             </select>
           </div>
@@ -324,8 +334,7 @@ const totalCount = computed(() => packages.value.length)
               {{ previewUrl ? "คลิกเพื่อเปลี่ยนรูป" : "คลิกเพื่ออัปโหลดรูป" }}
               <p class="text-xs text-[#c5b9ac] mt-0.5">JPG, PNG, WEBP</p>
             </div>
-            <input ref="fileInput" type="file" accept="image/jpeg,image/png,image/webp"
-              class="hidden" @change="handleFileChange"/>
+            <input ref="fileInput" type="file" accept="image/jpeg,image/png,image/webp" class="hidden" @change="handleFileChange"/>
           </div>
           <p v-if="uploadError" class="text-xs text-red-500 mt-1">{{ uploadError }}</p>
           <div class="mt-2">
@@ -339,8 +348,31 @@ const totalCount = computed(() => packages.value.length)
         <!-- รายละเอียด -->
         <div>
           <label class="block text-xs text-[#a08c7a] mb-1.5">รายละเอียด</label>
-          <textarea v-model="form.description" rows="5" placeholder="อธิบายรายละเอียดแพ็คเกจ..."
+          <textarea v-model="form.description" rows="4" placeholder="อธิบายรายละเอียดแพ็คเกจ..."
             class="w-full border border-[#ddd5c8] rounded-xl px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#9c7f5e]/30"/>
+        </div>
+
+        <!-- โปรโมชั่น -->
+        <div class="bg-rose-50 border border-rose-100 rounded-xl p-4 space-y-3">
+          <p class="text-xs font-semibold text-rose-600">🔥 ตั้งราคาโปรโมชั่น (ถ้ามี)</p>
+          <div>
+            <label class="block text-xs text-[#a08c7a] mb-1.5">ราคาโปรโมชั่น (บาท)</label>
+            <input v-model="form.sale_price" type="number" placeholder="เช่น 19900"
+              class="w-full border border-[#ddd5c8] rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300 bg-white"/>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs text-[#a08c7a] mb-1.5">วันเริ่มต้น</label>
+              <input v-model="form.sale_start" type="date"
+                class="w-full border border-[#ddd5c8] rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300 bg-white"/>
+            </div>
+            <div>
+              <label class="block text-xs text-[#a08c7a] mb-1.5">วันสิ้นสุด</label>
+              <input v-model="form.sale_end" type="date"
+                class="w-full border border-[#ddd5c8] rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300 bg-white"/>
+            </div>
+          </div>
+          <p class="text-xs text-[#a08c7a]">หากไม่ต้องการโปรโมชั่น ให้เว้นว่างไว้</p>
         </div>
 
         <p v-if="formError" class="text-xs text-red-500 bg-red-50 px-3 py-2 rounded-lg">{{ formError }}</p>
@@ -376,14 +408,8 @@ const totalCount = computed(() => packages.value.length)
         จะถูกลบถาวรและไม่สามารถกู้คืนได้
       </p>
       <div class="flex gap-3">
-        <button @click="showDelete = false"
-          class="flex-1 py-2 rounded-xl border border-[#ddd5c8] text-sm hover:bg-[#faf7f3] transition">
-          ยกเลิก
-        </button>
-        <button @click="confirmDelete"
-          class="flex-1 py-2 rounded-xl bg-red-500 text-white text-sm hover:bg-red-600 transition">
-          ลบเลย
-        </button>
+        <button @click="showDelete = false" class="flex-1 py-2 rounded-xl border border-[#ddd5c8] text-sm hover:bg-[#faf7f3] transition">ยกเลิก</button>
+        <button @click="confirmDelete" class="flex-1 py-2 rounded-xl bg-red-500 text-white text-sm hover:bg-red-600 transition">ลบเลย</button>
       </div>
     </div>
   </div>
