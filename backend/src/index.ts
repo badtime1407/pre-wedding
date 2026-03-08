@@ -11,10 +11,14 @@ import { uploadRoute } from "./routes/upload"
 const app = new Hono()
 
 app.use("*", cors({
-  origin: ['http://localhost:5173', 'https://pre-wedding.pages.dev'],
+  origin: ['http://localhost:5173', 'https://pre-wedding.pages.dev' ,'https://pre-wedding-delta.vercel.app'],
   allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowHeaders: ["Content-Type", "Authorization"]
 }))
+
+app.get("/", (c) => {
+  return c.text("Pre-wedding running 🚀")
+})
 
 app.route("/auth", auth)
 app.route("/admin", admin)
