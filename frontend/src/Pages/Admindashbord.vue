@@ -226,8 +226,7 @@ const paymentClass = s => ({
         <!-- รายได้รวม -->
         <div class="bg-white rounded-2xl border border-[#ede8e2] p-5">
           <div class="flex items-center gap-3 mb-3">
-            <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-xl">💰</div>
-            <p class="text-sm text-[#9e8e80]">รายได้รวมทั้งหมด</p>
+            <p class="text-xl text-[#9e8e80]">รายได้รวมทั้งหมด</p>
           </div>
           <p class="text-3xl font-bold text-[#2c2218]">฿ {{ formatMoney(totalRevenue) }}</p>
           <p class="text-xs text-[#9e8e80] mt-1">จากการจองที่ไม่ถูกยกเลิก</p>
@@ -236,8 +235,7 @@ const paymentClass = s => ({
         <!-- จำนวนจอง -->
         <div class="bg-white rounded-2xl border border-[#ede8e2] p-5">
           <div class="flex items-center gap-3 mb-3">
-            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-xl">📅</div>
-            <p class="text-sm text-[#9e8e80]">จำนวนการจอง</p>
+            <p class="text-xl text-[#9e8e80]">จำนวนการจอง</p>
           </div>
           <p class="text-3xl font-bold text-[#2c2218]">{{ totalBookings }} <span class="text-base font-normal text-[#9e8e80]">รายการ</span></p>
           <div class="flex gap-3 mt-2 flex-wrap">
@@ -251,8 +249,7 @@ const paymentClass = s => ({
         <!-- แพ็คเกจยอดนิยม -->
         <div class="bg-white rounded-2xl border border-[#ede8e2] p-5">
           <div class="flex items-center gap-3 mb-3">
-            <div class="w-10 h-10 rounded-xl bg-[#f0ece7] flex items-center justify-center text-xl">⭐</div>
-            <p class="text-sm text-[#9e8e80]">แพ็คเกจยอดนิยม</p>
+            <p class="text-xl text-[#9e8e80]">แพ็คเกจยอดนิยม</p>
           </div>
           <p v-if="topPackage" class="text-xl font-bold text-[#2c2218] leading-tight">{{ topPackage.name }}</p>
           <p v-else class="text-sm text-[#9e8e80]">ยังไม่มีข้อมูล</p>
@@ -267,9 +264,8 @@ const paymentClass = s => ({
         <!-- ชำระแล้ว -->
         <div class="bg-white rounded-2xl border border-emerald-100 p-5">
           <div class="flex items-center gap-3 mb-3">
-            <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-xl">✅</div>
             <div>
-              <p class="text-sm text-[#9e8e80]">ชำระแล้ว</p>
+              <p class="text-xl text-[#9e8e80]">ชำระแล้ว</p>
               <span class="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">{{ paymentCounts.paid }} รายการ</span>
             </div>
           </div>
@@ -279,9 +275,8 @@ const paymentClass = s => ({
         <!-- มัดจำแล้ว -->
         <div class="bg-white rounded-2xl border border-orange-100 p-5">
           <div class="flex items-center gap-3 mb-3">
-            <div class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-xl">🔖</div>
             <div>
-              <p class="text-sm text-[#9e8e80]">ชำระมัดจำ</p>
+              <p class="text-xl text-[#9e8e80]">ชำระมัดจำ</p>
               <span class="text-xs bg-orange-50 text-orange-600 border border-orange-200 px-2 py-0.5 rounded-full">{{ paymentCounts.deposit }} รายการ</span>
             </div>
           </div>
@@ -291,9 +286,8 @@ const paymentClass = s => ({
         <!-- ยังไม่ชำระ -->
         <div class="bg-white rounded-2xl border border-[#ede8e2] p-5">
           <div class="flex items-center gap-3 mb-3">
-            <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-xl">⏳</div>
             <div>
-              <p class="text-sm text-[#9e8e80]">ยังไม่ชำระ</p>
+              <p class="text-xl text-[#9e8e80]">ยังไม่ชำระ</p>
               <span class="text-xs bg-gray-50 text-gray-500 border border-gray-200 px-2 py-0.5 rounded-full">{{ paymentCounts.unpaid }} รายการ</span>
             </div>
           </div>

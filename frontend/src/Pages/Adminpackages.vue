@@ -211,7 +211,7 @@ const totalCount = computed(() => packages.value.length)
     </div>
     <p v-else-if="error" class="text-center text-red-500 py-12">{{ error }}</p>
     <div v-else-if="packages.length === 0" class="text-center py-16 text-[#a89880]">
-      <div class="text-4xl mb-3">📦</div><p>ยังไม่มีแพ็คเกจ</p>
+      <div class="text-4xl mb-3"></div><p>ยังไม่มีแพ็คเกจ</p>
     </div>
 
     <div v-else class="bg-white rounded-2xl border border-[#ede8e2] overflow-hidden">
@@ -233,7 +233,7 @@ const totalCount = computed(() => packages.value.length)
 
             <td class="px-5 py-4">
               <img v-if="pkg.image_url" :src="pkg.image_url" class="w-12 h-12 rounded-xl object-cover border border-[#ede8e2]"/>
-              <div v-else class="w-12 h-12 rounded-xl bg-[#f0ece7] flex items-center justify-center text-[#c5b9ac] text-xl">📷</div>
+              <div v-else class="w-12 h-12 rounded-xl bg-[#f0ece7] flex items-center justify-center text-[#c5b9ac] text-xl"></div>
             </td>
 
             <td class="px-5 py-4">
@@ -253,7 +253,7 @@ const totalCount = computed(() => packages.value.length)
               <div v-if="pkg.sale_price">
                 <div class="flex items-center gap-1.5">
                   <span class="text-sm font-bold text-rose-600">฿{{ pkg.sale_price?.toLocaleString() }}</span>
-                  <span v-if="isOnSale(pkg)" class="text-xs bg-rose-100 text-rose-600 px-1.5 py-0.5 rounded-full">🔥 ใช้งานอยู่</span>
+                  <span v-if="isOnSale(pkg)" class="text-xs bg-rose-100 text-rose-600 px-1.5 py-0.5 rounded-full">ใช้งานอยู่</span>
                   <span v-else class="text-xs bg-gray-100 text-gray-400 px-1.5 py-0.5 rounded-full">หมดแล้ว</span>
                 </div>
                 <p class="text-xs text-[#9e8e80] mt-0.5">{{ pkg.sale_start }} – {{ pkg.sale_end }}</p>
@@ -267,8 +267,8 @@ const totalCount = computed(() => packages.value.length)
 
             <td class="px-5 py-4">
               <div class="flex items-center gap-2">
-                <button @click="openEdit(pkg)" class="px-3 py-1.5 rounded-lg bg-[#f0ece7] text-[#3d2f22] text-xs hover:bg-[#e7dcc7] transition">✏️ แก้ไข</button>
-                <button @click="openDelete(pkg)" class="px-3 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs hover:bg-red-100 transition">🗑️ ลบ</button>
+                <button @click="openEdit(pkg)" class="px-3 py-1.5 rounded-lg bg-[#f0ece7] text-[#3d2f22] text-xs hover:bg-[#e7dcc7] transition">แก้ไข</button>
+                <button @click="openDelete(pkg)" class="px-3 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs hover:bg-red-100 transition">ลบ</button>
               </div>
             </td>
           </tr>
@@ -289,7 +289,7 @@ const totalCount = computed(() => packages.value.length)
     <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden">
 
       <div class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-[#ede8e2]">
-        <h3 class="font-bold text-[#2c2218]">{{ editTarget ? "✏️ แก้ไขแพ็คเกจ" : "📦 เพิ่มแพ็คเกจใหม่" }}</h3>
+        <h3 class="font-bold text-[#2c2218]">{{ editTarget ? "แก้ไขแพ็คเกจ" : "เพิ่มแพ็คเกจใหม่" }}</h3>
         <button @click="showForm = false" class="w-7 h-7 rounded-full bg-[#f0ece7] hover:bg-[#e3dcd4] transition text-xs">✕</button>
       </div>
 
@@ -330,9 +330,8 @@ const totalCount = computed(() => packages.value.length)
               กำลังอัปโหลด...
             </div>
             <div v-else class="text-[#a08c7a] text-sm py-2">
-              <div class="text-2xl mb-1">📁</div>
+              <div class="text-2xl mb-1"></div>
               {{ previewUrl ? "คลิกเพื่อเปลี่ยนรูป" : "คลิกเพื่ออัปโหลดรูป" }}
-              <p class="text-xs text-[#c5b9ac] mt-0.5">JPG, PNG, WEBP</p>
             </div>
             <input ref="fileInput" type="file" accept="image/jpeg,image/png,image/webp" class="hidden" @change="handleFileChange"/>
           </div>
@@ -354,7 +353,7 @@ const totalCount = computed(() => packages.value.length)
 
         <!-- โปรโมชั่น -->
         <div class="bg-rose-50 border border-rose-100 rounded-xl p-4 space-y-3">
-          <p class="text-xs font-semibold text-rose-600">🔥 ตั้งราคาโปรโมชั่น (ถ้ามี)</p>
+          <p class="text-xs font-semibold text-rose-600">ตั้งราคาโปรโมชั่น (ถ้ามี)</p>
           <div>
             <label class="block text-xs text-[#a08c7a] mb-1.5">ราคาโปรโมชั่น (บาท)</label>
             <input v-model="form.sale_price" type="number" placeholder="เช่น 19900"
@@ -401,7 +400,7 @@ const totalCount = computed(() => packages.value.length)
     class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4"
     @click.self="showDelete = false">
     <div class="bg-white rounded-2xl p-6 w-80 shadow-2xl">
-      <div class="text-3xl mb-3 text-center">🗑️</div>
+      <div class="text-3xl mb-3 text-center"></div>
       <h3 class="font-bold text-[#2c2218] text-center mb-1">ยืนยันการลบ?</h3>
       <p class="text-sm text-[#9e8e80] text-center mb-5">
         แพ็คเกจ <span class="font-semibold text-[#2c2218]">{{ delTarget?.name }}</span><br/>

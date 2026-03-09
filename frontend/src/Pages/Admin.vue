@@ -239,7 +239,7 @@ const chevron   = "background-image: url('data:image/svg+xml,<svg xmlns=%22http:
     </div>
     <p v-else-if="error" class="text-center text-red-500 py-12">{{ error }}</p>
     <div v-else-if="paginated.length === 0" class="text-center py-16 text-[#a89880]">
-      <div class="text-4xl mb-3">📋</div><p>ไม่พบรายการ</p>
+      <div class="text-4xl mb-3"></div><p>ไม่พบรายการ</p>
     </div>
 
     <div v-else class="bg-white rounded-2xl border border-[#ede8e2] overflow-hidden">
@@ -371,9 +371,9 @@ const chevron   = "background-image: url('data:image/svg+xml,<svg xmlns=%22http:
           </div>
         </div>
         <div v-if="selectedBooking?.status !== 'cancelled'" class="flex gap-2">
-          <button @click="openReschedule(selectedBooking); showDetail = false" class="flex-1 py-2 rounded-xl bg-blue-50 text-blue-700 text-sm hover:bg-blue-100 transition">📅 เลื่อนนัด</button>
-          <button @click="openAssign(selectedBooking); showDetail = false" class="flex-1 py-2 rounded-xl bg-amber-50 text-amber-700 text-sm hover:bg-amber-100 transition">📦 แพ็คเกจ</button>
-          <button @click="openConfirm('cancel', selectedBooking); showDetail = false" class="flex-1 py-2 rounded-xl bg-red-50 text-red-600 text-sm hover:bg-red-100 transition">✕ ยกเลิก</button>
+          <button @click="openReschedule(selectedBooking); showDetail = false" class="flex-1 py-2 rounded-xl bg-blue-50 text-blue-700 text-sm hover:bg-blue-100 transition">เลื่อนนัด</button>
+          <button @click="openAssign(selectedBooking); showDetail = false" class="flex-1 py-2 rounded-xl bg-amber-50 text-amber-700 text-sm hover:bg-amber-100 transition">แพ็คเกจ</button>
+          <button @click="openConfirm('cancel', selectedBooking); showDetail = false" class="flex-1 py-2 rounded-xl bg-red-50 text-red-600 text-sm hover:bg-red-100 transition">ยกเลิก</button>
         </div>
       </div>
     </div>
@@ -385,7 +385,6 @@ const chevron   = "background-image: url('data:image/svg+xml,<svg xmlns=%22http:
 <Transition enter-active-class="transition duration-200" enter-from-class="opacity-0 scale-95" leave-active-class="transition duration-150" leave-to-class="opacity-0 scale-95">
   <div v-if="showConfirm" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4" @click.self="showConfirm = false">
     <div class="bg-white rounded-2xl p-6 w-80 shadow-2xl">
-      <div class="text-3xl mb-3 text-center">⚠️</div>
       <h3 class="font-bold text-[#2c2218] text-center mb-1">ยืนยันการยกเลิก?</h3>
       <p class="text-sm text-[#9e8e80] text-center mb-5">
         การจองของ <span class="font-semibold text-[#2c2218]">{{ confirmAction?.booking?.customer_name }}</span><br/>
@@ -405,7 +404,7 @@ const chevron   = "background-image: url('data:image/svg+xml,<svg xmlns=%22http:
   <div v-if="showAssign" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4" @click.self="showAssign = false">
     <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
       <div class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-[#ede8e2]">
-        <h3 class="font-bold text-[#2c2218]">📦 กำหนดแพ็คเกจ</h3>
+        <h3 class="font-bold text-[#2c2218]">กำหนดแพ็คเกจ</h3>
         <button @click="showAssign = false" class="w-7 h-7 rounded-full bg-[#f0ece7] hover:bg-[#e3dcd4] transition text-xs">✕</button>
       </div>
       <div class="px-6 py-5 space-y-3">
@@ -436,7 +435,7 @@ const chevron   = "background-image: url('data:image/svg+xml,<svg xmlns=%22http:
     <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
       <div class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-[#ede8e2]">
         <div>
-          <h3 class="font-bold text-[#2c2218]">📅 เลื่อนนัด</h3>
+          <h3 class="font-bold text-[#2c2218]">เลื่อนนัด</h3>
           <p class="text-xs text-[#9e8e80]">{{ selectedBooking?.customer_name }}</p>
         </div>
         <button @click="showReschedule = false" class="w-7 h-7 rounded-full bg-[#f0ece7] hover:bg-[#e3dcd4] transition text-xs">✕</button>
