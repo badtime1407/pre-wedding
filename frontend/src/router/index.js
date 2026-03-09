@@ -23,11 +23,11 @@ const routes = [
   { path: "/packagespre-wedding", component: PackagespreWedding },
   { path: "/register", component: Register, meta: { hideNavbar: true, hideFooter: true},},
   { path: "/resetpassword", component: Resetpassword, meta: { hideNavbar: true, hideFooter: true},},
-  {  path: "/orderstatus", name: "OrderStatus", component: OrderStatus, meta: { requiresAuth: true }},
-  {  path: "/admin", component: Admin, meta: { requiresAuth: true, requiresAdmin: true, hideNavbar: true, hideFooter: true }},
-  {  path: "/admindashbord", component: Admindashbord, meta: { requiresAuth: true, requiresAdmin: true, hideNavbar: true, hideFooter: true }},
-  {  path: "/adminpackages", component: Adminpackages, meta: { requiresAuth: true, requiresAdmin: true, hideNavbar: true, hideFooter: true }},
-  {  path: "/admintimetable", component: Admintimetable, meta: { requiresAuth: true, requiresAdmin: true, hideNavbar: true, hideFooter: true }},
+  { path: "/orderstatus", name: "OrderStatus", component: OrderStatus, meta: { requiresAuth: true }},
+  { path: "/admin", component: Admin, meta: { requiresAuth: true, requiresAdmin: true, hideNavbar: true, hideFooter: true }},
+  { path: "/admindashbord", component: Admindashbord, meta: { requiresAuth: true, requiresAdmin: true, hideNavbar: true, hideFooter: true }},
+  { path: "/adminpackages", component: Adminpackages, meta: { requiresAuth: true, requiresAdmin: true, hideNavbar: true, hideFooter: true }},
+  { path: "/admintimetable", component: Admintimetable, meta: { requiresAuth: true, requiresAdmin: true, hideNavbar: true, hideFooter: true }},
   ];
 
 const router = createRouter({

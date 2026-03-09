@@ -6,7 +6,7 @@ const packages  = ref([])
 const loading   = ref(true)
 
 const filterYear  = ref(new Date().getFullYear())
-const filterMonth = ref(0) // 0 = ทั้งหมด
+const filterMonth = ref(0)
 
 const years  = [2024, 2025, 2026, 2027]
 const months = [
@@ -50,6 +50,24 @@ const totalRevenue = computed(() =>
     .reduce((sum, b) => sum + (b.package_price ?? 0), 0)
 )
 
+const paidRevenue = computed(() =>
+  filtered.value
+    .filter(b => b.payment_status === "paid" && b.status !== "cancelled")
+    .reduce((sum, b) => sum + (b.package_price ?? 0), 0)
+)
+
+const depositRevenue = computed(() =>
+  filtered.value
+    .filter(b => b.payment_status === "deposit" && b.status !== "cancelled")
+    .reduce((sum, b) => sum + (b.package_price ?? 0), 0)
+)
+
+const unpaidRevenue = computed(() =>
+  filtered.value
+    .filter(b => (b.payment_status === "unpaid" || !b.payment_status) && b.status !== "cancelled")
+    .reduce((sum, b) => sum + (b.package_price ?? 0), 0)
+)
+
 const totalBookings = computed(() => filtered.value.length)
 
 const statusCounts = computed(() => ({
@@ -57,6 +75,12 @@ const statusCounts = computed(() => ({
   in_progress: filtered.value.filter(b => b.status === "in_progress").length,
   completed:   filtered.value.filter(b => b.status === "completed").length,
   cancelled:   filtered.value.filter(b => b.status === "cancelled").length,
+}))
+
+const paymentCounts = computed(() => ({
+  paid:    filtered.value.filter(b => b.payment_status === "paid"    && b.status !== "cancelled").length,
+  deposit: filtered.value.filter(b => b.payment_status === "deposit" && b.status !== "cancelled").length,
+  unpaid:  filtered.value.filter(b => (b.payment_status === "unpaid" || !b.payment_status) && b.status !== "cancelled").length,
 }))
 
 /* ── top package ── */
@@ -80,8 +104,7 @@ const packageBreakdown = computed(() => {
   return Object.entries(count)
     .sort((a, b) => b[1] - a[1])
     .map(([name, c], i) => ({
-      name,
-      count: c,
+      name, count: c,
       pct: Math.round((c / total) * 100),
       color: colors[i % colors.length],
     }))
@@ -114,9 +137,7 @@ const monthlyData = computed(() => {
 })
 
 const maxCount = computed(() => Math.max(...monthlyData.value.map(d => d.count), 1))
-
 const thaiMonthShort = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."]
-const thaiMonthsFull = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"]
 
 /* ── recent bookings table ── */
 const searchQ   = ref("")
@@ -141,16 +162,12 @@ const tableRows = computed(() => {
   return recentFiltered.value.slice(s, s + perPage)
 })
 
-/* ── helpers ── */
 function formatDate(d) {
   if (!d) return "-"
   const [y, m, dd] = d.split("-")
   return `${parseInt(dd)} ${thaiMonthShort[parseInt(m)-1]} ${parseInt(y)+543}`
 }
-
-function formatMoney(n) {
-  return Number(n ?? 0).toLocaleString()
-}
+function formatMoney(n) { return Number(n ?? 0).toLocaleString() }
 
 const statusLabel = s => ({ pending:"รอดำเนินการ", in_progress:"กำลังดำเนินการ", completed:"เสร็จสิ้น", cancelled:"ยกเลิก" }[s] ?? s)
 const statusClass = s => ({
@@ -159,12 +176,18 @@ const statusClass = s => ({
   completed:   "bg-emerald-50 text-emerald-700 border border-emerald-200",
   cancelled:   "bg-red-50 text-red-700 border border-red-200",
 }[s] ?? "")
+
+const paymentLabel = s => ({ unpaid:"ยังไม่ชำระ", deposit:"ชำระมัดจำ", paid:"ชำระแล้ว" }[s] ?? "ยังไม่ชำระ")
+const paymentClass = s => ({
+  unpaid:  "bg-gray-50 text-gray-500 border border-gray-200",
+  deposit: "bg-orange-50 text-orange-600 border border-orange-200",
+  paid:    "bg-emerald-50 text-emerald-700 border border-emerald-200",
+}[s] ?? "bg-gray-50 text-gray-500 border border-gray-200")
 </script>
 
 <template>
 <div class="min-h-screen bg-[#f6eee1] flex">
   <sidebar />
-
   <div class="flex-1 p-6 overflow-auto">
 
     <!-- HEADER -->
@@ -197,17 +220,17 @@ const statusClass = s => ({
 
     <template v-else>
 
-      <!-- STAT CARDS -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <!-- STAT CARDS ROW 1 -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
 
-        <!-- รายได้ -->
+        <!-- รายได้รวม -->
         <div class="bg-white rounded-2xl border border-[#ede8e2] p-5">
           <div class="flex items-center gap-3 mb-3">
             <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-xl">💰</div>
             <p class="text-sm text-[#9e8e80]">รายได้รวมทั้งหมด</p>
           </div>
           <p class="text-3xl font-bold text-[#2c2218]">฿ {{ formatMoney(totalRevenue) }}</p>
-          <p class="text-xs text-emerald-600 mt-1">จากการจองที่ไม่ถูกยกเลิก</p>
+          <p class="text-xs text-[#9e8e80] mt-1">จากการจองที่ไม่ถูกยกเลิก</p>
         </div>
 
         <!-- จำนวนจอง -->
@@ -238,6 +261,47 @@ const statusClass = s => ({
 
       </div>
 
+      <!-- STAT CARDS ROW 2 — ยอดชำระ -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+
+        <!-- ชำระแล้ว -->
+        <div class="bg-white rounded-2xl border border-emerald-100 p-5">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-xl">✅</div>
+            <div>
+              <p class="text-sm text-[#9e8e80]">ชำระแล้ว</p>
+              <span class="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">{{ paymentCounts.paid }} รายการ</span>
+            </div>
+          </div>
+          <p class="text-2xl font-bold text-emerald-600">฿ {{ formatMoney(paidRevenue) }}</p>
+        </div>
+
+        <!-- มัดจำแล้ว -->
+        <div class="bg-white rounded-2xl border border-orange-100 p-5">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-xl">🔖</div>
+            <div>
+              <p class="text-sm text-[#9e8e80]">ชำระมัดจำ</p>
+              <span class="text-xs bg-orange-50 text-orange-600 border border-orange-200 px-2 py-0.5 rounded-full">{{ paymentCounts.deposit }} รายการ</span>
+            </div>
+          </div>
+          <p class="text-2xl font-bold text-orange-500">฿ {{ formatMoney(depositRevenue) }}</p>
+        </div>
+
+        <!-- ยังไม่ชำระ -->
+        <div class="bg-white rounded-2xl border border-[#ede8e2] p-5">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-xl">⏳</div>
+            <div>
+              <p class="text-sm text-[#9e8e80]">ยังไม่ชำระ</p>
+              <span class="text-xs bg-gray-50 text-gray-500 border border-gray-200 px-2 py-0.5 rounded-full">{{ paymentCounts.unpaid }} รายการ</span>
+            </div>
+          </div>
+          <p class="text-2xl font-bold text-gray-500">฿ {{ formatMoney(unpaidRevenue) }}</p>
+        </div>
+
+      </div>
+
       <!-- CHARTS ROW -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
 
@@ -246,15 +310,13 @@ const statusClass = s => ({
           <div class="flex items-center justify-between mb-4">
             <p class="font-semibold text-[#2c2218]">รายได้รายเดือน ({{ filterYear + 543 }})</p>
             <span class="text-xs text-[#9e8e80] flex items-center gap-1">
-              <span class="w-3 h-3 rounded-full bg-[#9c7f5e] inline-block"></span> รายได้รวม
+              <span class="w-3 h-3 rounded-full bg-[#9c7f5e] inline-block"></span> จำนวนการจอง
             </span>
           </div>
           <div class="flex items-end gap-1.5 h-40">
             <div v-for="(d, i) in monthlyData" :key="i" class="flex-1 flex flex-col items-center gap-1">
-              <div class="w-full rounded-t-md bg-[#e7dcc7] relative overflow-hidden transition-all duration-500"
-                :style="`height: ${maxCount > 0 ? (d.count / maxCount) * 128 : 0}px; min-height: ${d.count > 0 ? 4 : 0}px`">
-                <div class="absolute inset-0 bg-[#9c7f5e]"/>
-              </div>
+              <div class="w-full rounded-t-md relative overflow-hidden transition-all duration-500"
+                :style="`height: ${maxCount > 0 ? (d.count / maxCount) * 128 : 0}px; min-height: ${d.count > 0 ? 4 : 0}px; background:#9c7f5e`"/>
               <span class="text-[10px] text-[#9e8e80]">{{ thaiMonthShort[i] }}</span>
             </div>
           </div>
@@ -263,11 +325,8 @@ const statusClass = s => ({
         <!-- DONUT CHART -->
         <div class="bg-white rounded-2xl border border-[#ede8e2] p-5">
           <p class="font-semibold text-[#2c2218] mb-4">สรุปยอดตามแพ็คเกจ</p>
-
           <div v-if="packageBreakdown.length === 0" class="flex items-center justify-center h-32 text-[#a89880] text-sm">ไม่มีข้อมูล</div>
-
           <div v-else class="flex flex-col items-center">
-            <!-- Donut -->
             <div class="relative w-32 h-32 mb-4">
               <svg viewBox="0 0 120 120" class="w-full h-full -rotate-90">
                 <circle cx="60" cy="60" r="54" fill="none" stroke="#f0ece7" stroke-width="12"/>
@@ -283,8 +342,6 @@ const statusClass = s => ({
                 <p class="text-xs text-[#9e8e80]">การจอง</p>
               </div>
             </div>
-
-            <!-- Legend -->
             <div class="w-full space-y-2">
               <div v-for="p in packageBreakdown" :key="p.name" class="flex items-center justify-between text-xs">
                 <div class="flex items-center gap-2">
@@ -299,14 +356,13 @@ const statusClass = s => ({
 
       </div>
 
-      <!-- RECENT BOOKINGS TABLE -->
+      <!-- TABLE -->
       <div class="bg-white rounded-2xl border border-[#ede8e2] overflow-hidden">
         <div class="flex items-center justify-between px-5 py-4 border-b border-[#f0ece7]">
           <p class="font-semibold text-[#2c2218]">รายละเอียดรายได้รายวัน</p>
           <input v-model="searchQ" type="text" placeholder="ค้นหาชื่อลูกค้า..."
             class="border border-[#ddd5c8] rounded-xl px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#9c7f5e]/30 w-48"/>
         </div>
-
         <table class="w-full">
           <thead class="bg-[#faf7f3]">
             <tr>
@@ -314,6 +370,7 @@ const statusClass = s => ({
               <th class="px-5 py-3 text-left text-xs text-[#9e8e80] font-medium">ลูกค้า</th>
               <th class="px-5 py-3 text-left text-xs text-[#9e8e80] font-medium">แพ็คเกจ</th>
               <th class="px-5 py-3 text-left text-xs text-[#9e8e80] font-medium">สถานะ</th>
+              <th class="px-5 py-3 text-left text-xs text-[#9e8e80] font-medium">ชำระเงิน</th>
               <th class="px-5 py-3 text-right text-xs text-[#9e8e80] font-medium">จำนวนเงินสุทธิ</th>
             </tr>
           </thead>
@@ -328,17 +385,19 @@ const statusClass = s => ({
               <td class="px-5 py-3">
                 <span class="text-xs px-2 py-1 rounded-full" :class="statusClass(b.status)">{{ statusLabel(b.status) }}</span>
               </td>
-              <td class="px-5 py-3 text-right text-sm font-semibold" :class="b.status === 'cancelled' ? 'text-[#c5b9ac]' : 'text-[#2c2218]'">
+              <td class="px-5 py-3">
+                <span class="text-xs px-2 py-1 rounded-full" :class="paymentClass(b.payment_status || 'unpaid')">{{ paymentLabel(b.payment_status || 'unpaid') }}</span>
+              </td>
+              <td class="px-5 py-3 text-right text-sm font-semibold"
+                :class="b.status === 'cancelled' ? 'text-[#c5b9ac]' : 'text-[#2c2218]'">
                 {{ b.status === 'cancelled' ? '-' : `฿ ${formatMoney(b.package_price)}` }}
               </td>
             </tr>
             <tr v-if="tableRows.length === 0">
-              <td colspan="5" class="text-center py-10 text-[#a89880] text-sm">ไม่พบข้อมูล</td>
+              <td colspan="6" class="text-center py-10 text-[#a89880] text-sm">ไม่พบข้อมูล</td>
             </tr>
           </tbody>
         </table>
-
-        <!-- PAGINATION -->
         <div class="flex items-center justify-between px-5 py-3 border-t border-[#f0ece7]">
           <p class="text-xs text-[#9e8e80]">แสดง 1 ถึง {{ Math.min(tablePage * perPage, recentFiltered.length) }} จาก {{ recentFiltered.length }} รายการ</p>
           <div class="flex gap-1">

@@ -45,7 +45,10 @@ booking.get("/my", authMiddleware, async (c) => {
 
   const result = await db
     .prepare(`
-      SELECT bookings.*, packages.name AS package_name, packages.price AS package_price, packages.image_url
+      SELECT bookings.*,
+             packages.name  AS package_name,
+             packages.price AS package_price,
+             packages.image_url
       FROM bookings
       LEFT JOIN packages ON bookings.package_id = packages.id
       WHERE bookings.user_id = ?
@@ -73,9 +76,12 @@ booking.get("/", authMiddleware, async (c) => {
 
   const result = await db
     .prepare(`
-      SELECT bookings.*, users.email, packages.name AS package_name
+      SELECT bookings.*,
+             users.email,
+             packages.name  AS package_name,
+             packages.price AS package_price
       FROM bookings
-      LEFT JOIN users ON bookings.user_id = users.id
+      LEFT JOIN users    ON bookings.user_id    = users.id
       LEFT JOIN packages ON bookings.package_id = packages.id
       ORDER BY bookings.date DESC
     `)
@@ -188,7 +194,7 @@ booking.patch("/:id/status", authMiddleware, async (c) => {
 
 
 /* =====================================================
-   Admin อัปเดตสถานะการชำระเงิน  ← ใหม่
+   Admin อัปเดตสถานะการชำระเงิน
 ===================================================== */
 booking.patch("/:id/payment", authMiddleware, async (c) => {
 
