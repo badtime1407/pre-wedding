@@ -69,7 +69,7 @@ function statusClass(s) {
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#f5f1ec] py-12 px-4 font-[Sarabun,sans-serif]">
+  <div class="min-h-screen bg-white py-12 px-4 font-[Sarabun,sans-serif]">
 
     <!-- HEADER -->
     <h1 class="text-center text-3xl font-bold text-[#2c2218] mb-1">
@@ -114,7 +114,7 @@ function statusClass(s) {
 
             <div>
               <p class="font-semibold text-[#2c2218] text-base">{{ b.customer_name }}</p>
-              <p class="text-xs text-[#6b5c4e] mt-0.5">🕐 {{ b.time }}</p>
+              <p class="text-xs text-[#6b5c4e] mt-0.5">{{ b.time }}</p>
               <p class="text-xs text-[#9e8e80]">{{ formatDate(b.date) }}</p>
             </div>
           </div>

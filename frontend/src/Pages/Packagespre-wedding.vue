@@ -47,7 +47,7 @@ onMounted(async () => {
           <img :src="pkg.image_url" class="w-full h-60 object-cover object-[center_20%]"/>
           <span v-if="isOnSale(pkg)"
             class="absolute top-3 left-3 bg-rose-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow">
-            🔥 โปรโมชั่น
+            โปรโมชั่น
           </span>
         </div>
 
@@ -83,7 +83,7 @@ onMounted(async () => {
 
         <!-- โปรโมชั่น badge ใน popup -->
         <div v-if="isOnSale(selectedPackage)" class="inline-flex items-center gap-1.5 bg-rose-50 text-rose-600 border border-rose-200 text-xs font-semibold px-3 py-1 rounded-full mb-3">
-          🔥 โปรโมชั่นพิเศษ ถึง {{ selectedPackage.sale_end }}
+          โปรโมชั่นพิเศษ ถึง {{ selectedPackage.sale_end }}
         </div>
 
         <h2 class="text-3xl font-bold mb-4">{{ selectedPackage.name }}</h2>
