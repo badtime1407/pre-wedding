@@ -240,10 +240,12 @@ function closeModal() {
             @click="!isTimeBooked(selectedDate, time) && (selectedTime = time)"
             class="w-full py-3 rounded-xl border transition"
             :class="{
-              'border-black font-semibold bg-gray-50':
+              'border-[#9c7f5e] border-2 font-semibold bg-white text-[#3d2f22]':
                 selectedTime === time,
-              'bg-gray-200 text-gray-400 cursor-not-allowed':
-                isTimeBooked(selectedDate, time)
+              'bg-gray-200 text-gray-400 cursor-not-allowed border-gray-200':
+                isTimeBooked(selectedDate, time),
+              'border-[#ddd5c8] hover:border-[#9c7f5e] hover:bg-[#faf7f3]':
+                selectedTime !== time && !isTimeBooked(selectedDate, time)
             }"
           >
             {{ time }}

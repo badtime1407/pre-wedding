@@ -10,12 +10,66 @@ const isLoggedIn   = ref(false)
 const isLoggingOut = ref(false)
 const profileRef   = ref(null)
 const user         = ref(null)
+const avatarUrl    = ref(null)
+
+/* ── AVATAR UPLOAD ── */
+const showAvatarModal = ref(false)
+const avatarFileInput = ref(null)
+const avatarPreview   = ref(null)
+const avatarFile      = ref(null)
+const avatarUploading = ref(false)
+const avatarError     = ref("")
+
+function openAvatarModal() {
+  showProfile.value   = false
+  avatarPreview.value = avatarUrl.value
+  avatarFile.value    = null
+  avatarError.value   = ""
+  showAvatarModal.value = true
+}
+
+function handleAvatarFile(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+  const allowed = ["image/jpeg", "image/png", "image/webp"]
+  if (!allowed.includes(file.type)) {
+    avatarError.value = "รองรับเฉพาะ JPG, PNG, WEBP"
+    return
+  }
+  avatarError.value   = ""
+  avatarFile.value    = file
+  avatarPreview.value = URL.createObjectURL(file)
+}
+
+async function uploadAvatar() {
+  if (!avatarFile.value) return
+  avatarUploading.value = true
+  avatarError.value     = ""
+  try {
+    const token = localStorage.getItem("token")
+    const fd    = new FormData()
+    fd.append("file", avatarFile.value)
+    const res  = await fetch(`${import.meta.env.VITE_API_URL}/user/avatar`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: fd,
+    })
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok) { avatarError.value = data.message || "อัปโหลดไม่สำเร็จ"; return }
+    avatarUrl.value       = data.avatar
+    showAvatarModal.value = false
+  } catch {
+    avatarError.value = "เชื่อมต่อ server ไม่ได้"
+  } finally {
+    avatarUploading.value = false
+  }
+}
 
 /* ── NOTIFICATIONS ── */
-const showNotif    = ref(false)
+const showNotif     = ref(false)
 const notifications = ref([])
-const notifRef     = ref(null)
-let   pollTimer    = null
+const notifRef      = ref(null)
+let   pollTimer     = null
 
 const unreadCount = computed(() =>
   notifications.value.filter((n) => !n.is_read).length
@@ -30,6 +84,19 @@ async function fetchNotifications() {
       { headers: { Authorization: `Bearer ${token}` } }
     )
     if (res.ok) notifications.value = await res.json()
+  } catch {}
+}
+
+async function fetchProfile() {
+  try {
+    const token = localStorage.getItem("token")
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/user/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    if (res.ok) {
+      const data = await res.json()
+      avatarUrl.value = data.avatar || null
+    }
   } catch {}
 }
 
@@ -77,8 +144,8 @@ onMounted(() => {
     try {
       const payload = JSON.parse(atob(token.split(".")[1]))
       user.value = payload
-      // ดึงทันที แล้ว poll ทุก 30 วินาที
       fetchNotifications()
+      fetchProfile()
       pollTimer = setInterval(fetchNotifications, 30000)
     } catch {}
   }
@@ -96,9 +163,10 @@ const logout = () => {
   clearInterval(pollTimer)
   setTimeout(() => {
     localStorage.removeItem("token")
-    isLoggedIn.value  = false
-    showProfile.value = false
-    user.value        = null
+    isLoggedIn.value    = false
+    showProfile.value   = false
+    user.value          = null
+    avatarUrl.value     = null
     notifications.value = []
     isLoggingOut.value  = false
     router.push("/")
@@ -108,8 +176,7 @@ const logout = () => {
 /* ── HELPERS ── */
 function timeAgo(dateStr) {
   if (!dateStr) return ""
-  // บวก 7 ชั่วโมงให้ UTC เป็นเวลาไทย
-  const utcDate = new Date(dateStr + "Z") // เติม Z บอกว่าเป็น UTC
+  const utcDate = new Date(dateStr + "Z")
   const diff = Date.now() - utcDate.getTime()
   const m = Math.floor(diff / 60000)
   if (m < 1)  return "เมื่อกี้"
@@ -120,9 +187,9 @@ function timeAgo(dateStr) {
 }
 
 function notifIcon(title) {
-  if (title?.includes("เลื่อน")) return "📅"
-  if (title?.includes("ยกเลิก")) return "❌"
-  return "🔔"
+  if (title?.includes("เลื่อน")) return "/calendar.png"
+  if (title?.includes("ยกเลิก")) return "/cancel.png"
+  return "/notification.png"
 }
 </script>
 
@@ -206,55 +273,41 @@ function notifIcon(title) {
         <div class="relative" ref="notifRef">
           <button @click.stop="toggleNotif"
             class="relative w-10 h-10 flex items-center justify-center rounded-full hover:bg-[#e0d4c0] transition">
-            <span class="text-xl">🔔</span>
-            <!-- badge -->
+            <img src="/notification.png" class="w-6 h-6" />
             <span v-if="unreadCount > 0"
               class="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
               {{ unreadCount > 9 ? '9+' : unreadCount }}
             </span>
           </button>
 
-          <!-- DROPDOWN -->
           <transition name="dropdown">
             <div v-if="showNotif"
               class="absolute right-0 mt-3 w-80 bg-white shadow-xl rounded-xl border border-gray-200 z-50 overflow-hidden">
-
-              <!-- header -->
               <div class="flex items-center justify-between px-4 py-3 border-b bg-[#faf7f3]">
                 <p class="font-semibold text-sm text-[#2c2218]">การแจ้งเตือน</p>
-                <button v-if="unreadCount > 0"
-                  @click="markAllRead"
+                <button v-if="unreadCount > 0" @click="markAllRead"
                   class="text-xs text-[#9c7f5e] hover:underline">
                   อ่านทั้งหมด
                 </button>
               </div>
-
-              <!-- list -->
               <div class="max-h-80 overflow-y-auto divide-y divide-gray-100">
-
                 <div v-if="notifications.length === 0"
                   class="py-10 text-center text-sm text-gray-400">
                   ไม่มีการแจ้งเตือน
                 </div>
-
-                <div
-                  v-for="n in notifications" :key="n.id"
+                <div v-for="n in notifications" :key="n.id"
                   @click="markRead(n)"
                   class="flex gap-3 px-4 py-3 cursor-pointer transition"
-                  :class="n.is_read ? 'bg-white hover:bg-gray-50' : 'bg-amber-50 hover:bg-amber-100'"
-                >
-                  <div class="text-xl mt-0.5 shrink-0">{{ notifIcon(n.title) }}</div>
+                  :class="n.is_read ? 'bg-white hover:bg-gray-50' : 'bg-amber-50 hover:bg-amber-100'">
+                  <img :src="notifIcon(n.title)" class="w-6 h-6 mt-0.5 shrink-0" />
                   <div class="flex-1 min-w-0">
                     <p class="text-sm font-semibold text-[#2c2218] truncate">{{ n.title }}</p>
                     <p class="text-xs text-gray-500 mt-0.5 leading-relaxed">{{ n.message }}</p>
                     <p class="text-[10px] text-gray-400 mt-1">{{ timeAgo(n.created_at) }}</p>
                   </div>
-                  <div v-if="!n.is_read"
-                    class="w-2 h-2 rounded-full bg-red-400 mt-1.5 shrink-0"/>
+                  <div v-if="!n.is_read" class="w-2 h-2 rounded-full bg-red-400 mt-1.5 shrink-0"/>
                 </div>
-
               </div>
-
             </div>
           </transition>
         </div>
@@ -262,20 +315,35 @@ function notifIcon(title) {
         <!-- PROFILE -->
         <div class="relative" ref="profileRef">
           <button @click="toggleProfile">
-            <img src="/user.png"
-                 class="w-10 h-10 rounded-full border-2 border-gray-100 hover:scale-105 transition" />
+            <!-- แสดง avatar ถ้ามี ไม่งั้นใช้รูป default -->
+            <img
+              :src="avatarUrl || '/user.png'"
+              class="w-10 h-10 rounded-full border-2 border-gray-100 hover:scale-105 transition object-cover"
+            />
           </button>
 
           <transition name="dropdown">
             <div v-if="showProfile"
               class="absolute right-0 mt-3 w-80 bg-white shadow-xl rounded-xl border border-gray-200 p-4 z-50"
               :class="isLoggingOut ? 'opacity-0 scale-95' : ''">
-              <div class="border-b pb-3 mb-3 text-center mt-3">
-                <p class="font-semibold text-gray-800 text-lg">
-                  ชื่อผู้ใช้ : {{ user?.name || 'User' }}
-                </p>
-                <p class="text-sm text-gray-500 mt-3">Role : {{ user?.role }}</p>
+
+              <!-- Avatar + ชื่อ -->
+              <div class="border-b pb-4 mb-3 text-center">
+                <div class="relative inline-block mb-3">
+                  <img
+                    :src="avatarUrl || '/user.png'"
+                    class="w-20 h-20 rounded-full border-2 border-[#e7dcc7] object-cover mx-auto"
+                  />
+                  <button
+                    @click="openAvatarModal"
+                    class="absolute bottom-0 right-0 w-6 h-6 text-white rounded-full text-xs flex items-center justify-center hover:bg-white transition"
+                    title="เปลี่ยนรูปโปรไฟล์">
+                    <img src="/edit.png" class="w-3 h-3" />
+                  </button>
+                </div>
+                <p class="font-semibold text-gray-800 text-lg">{{ user?.name || 'User' }}</p>
               </div>
+
               <RouterLink to="/orderstatus"
                 class="block px-3 py-2 rounded-lg hover:bg-gray-100 transition"
                 @click="closeProfile">
@@ -292,6 +360,61 @@ function notifIcon(title) {
       </div>
     </div>
   </nav>
+
+  <!-- MODAL: UPLOAD AVATAR -->
+  <Transition enter-active-class="transition duration-200" enter-from-class="opacity-0"
+              leave-active-class="transition duration-150" leave-to-class="opacity-0">
+    <div v-if="showAvatarModal"
+      class="fixed inset-0 bg-black/40 flex items-center justify-center z-[100] px-4"
+      @click.self="showAvatarModal = false">
+      <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
+
+        <div class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-[#ede8e2]">
+          <h3 class="font-bold text-[#2c2218]">เปลี่ยนรูปโปรไฟล์</h3>
+          <button @click="showAvatarModal = false"
+            class="w-7 h-7 rounded-full bg-[#f0ece7] hover:bg-[#e3dcd4] transition text-xs">✕</button>
+        </div>
+
+        <div class="px-6 py-5 space-y-4">
+
+          <!-- Preview -->
+          <div class="flex flex-col items-center gap-3">
+            <img
+              :src="avatarPreview || '/user.png'"
+              class="w-28 h-28 rounded-full border-4 border-[#e7dcc7] object-cover"
+            />
+            <button
+              @click="avatarFileInput.click()"
+              class="px-4 py-2 rounded-xl border border-[#ddd5c8] text-sm text-[#3d2f22] hover:bg-[#f0ece7] transition">
+              เลือกรูปภาพ
+            </button>
+            <input ref="avatarFileInput" type="file" accept="image/jpeg,image/png,image/webp"
+              class="hidden" @change="handleAvatarFile"/>
+            <p class="font-semibold text-gray-800 text-lg">Username : {{ user?.name || 'User' }}</p>
+          </div>
+
+          <p v-if="avatarError" class="text-xs text-red-500 bg-red-50 px-3 py-2 rounded-lg text-center">
+            {{ avatarError }}
+          </p>
+
+          <div class="flex gap-2">
+            <button @click="showAvatarModal = false"
+              class="flex-1 py-2 rounded-xl border border-[#ddd5c8] text-sm hover:bg-[#faf7f3] transition">
+              ยกเลิก
+            </button>
+            <button
+              @click="uploadAvatar"
+              :disabled="!avatarFile || avatarUploading"
+              class="flex-1 py-2 rounded-xl bg-[#3d2f22] text-white text-sm hover:bg-[#2c2218] transition disabled:opacity-50">
+              {{ avatarUploading ? "กำลังอัปโหลด..." : "บันทึก" }}
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </Transition>
+
 </template>
 
 <style>
