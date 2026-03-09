@@ -463,7 +463,6 @@ const chevron   = "background-image: url('data:image/svg+xml,<svg xmlns=%22http:
   </div>
 </Transition>
 
-
 <!-- TOAST -->
 <Transition enter-active-class="transition duration-300" enter-from-class="opacity-0 translate-y-2" leave-active-class="transition duration-200" leave-to-class="opacity-0 translate-y-2">
   <div v-if="toast.show"
