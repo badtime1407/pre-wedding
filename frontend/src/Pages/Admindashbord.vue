@@ -32,6 +32,20 @@ onMounted(async () => {
   }
 })
 
+/* ── คำนวณราคาจริง (ถ้าอยู่ในช่วงโปรโมชั่นตอนวันจอง ใช้ sale_price) ── */
+function effectivePrice(b) {
+  if (
+    b.package_sale_price &&
+    b.package_sale_start &&
+    b.package_sale_end &&
+    b.date >= b.package_sale_start &&
+    b.date <= b.package_sale_end
+  ) {
+    return b.package_sale_price
+  }
+  return b.package_price ?? 0
+}
+
 /* ── filtered bookings ── */
 const filtered = computed(() => {
   return bookings.value.filter(b => {
@@ -47,25 +61,25 @@ const filtered = computed(() => {
 const totalRevenue = computed(() =>
   filtered.value
     .filter(b => b.status !== "cancelled")
-    .reduce((sum, b) => sum + (b.package_price ?? 0), 0)
+    .reduce((sum, b) => sum + effectivePrice(b), 0)
 )
 
 const paidRevenue = computed(() =>
   filtered.value
     .filter(b => b.payment_status === "paid" && b.status !== "cancelled")
-    .reduce((sum, b) => sum + (b.package_price ?? 0), 0)
+    .reduce((sum, b) => sum + effectivePrice(b), 0)
 )
 
 const depositRevenue = computed(() =>
   filtered.value
     .filter(b => b.payment_status === "deposit" && b.status !== "cancelled")
-    .reduce((sum, b) => sum + (b.package_price ?? 0), 0)
+    .reduce((sum, b) => sum + effectivePrice(b), 0)
 )
 
 const unpaidRevenue = computed(() =>
   filtered.value
     .filter(b => (b.payment_status === "unpaid" || !b.payment_status) && b.status !== "cancelled")
-    .reduce((sum, b) => sum + (b.package_price ?? 0), 0)
+    .reduce((sum, b) => sum + effectivePrice(b), 0)
 )
 
 const totalBookings = computed(() => filtered.value.length)
@@ -131,7 +145,7 @@ const monthlyData = computed(() => {
     if (y !== filterYear.value) return
     if (b.status === "cancelled") return
     arr[m - 1].count++
-    arr[m - 1].revenue += b.package_price ?? 0
+    arr[m - 1].revenue += effectivePrice(b)
   })
   return arr
 })
@@ -225,18 +239,14 @@ const paymentClass = s => ({
 
         <!-- รายได้รวม -->
         <div class="bg-white rounded-2xl border border-[#ede8e2] p-5">
-          <div class="flex items-center gap-3 mb-3">
-            <p class="text-xl text-[#9e8e80]">รายได้รวมทั้งหมด</p>
-          </div>
+          <p class="text-sm text-[#9e8e80] mb-3">รายได้รวมทั้งหมด</p>
           <p class="text-3xl font-bold text-[#2c2218]">฿ {{ formatMoney(totalRevenue) }}</p>
           <p class="text-xs text-[#9e8e80] mt-1">จากการจองที่ไม่ถูกยกเลิก</p>
         </div>
 
         <!-- จำนวนจอง -->
         <div class="bg-white rounded-2xl border border-[#ede8e2] p-5">
-          <div class="flex items-center gap-3 mb-3">
-            <p class="text-xl text-[#9e8e80]">จำนวนการจอง</p>
-          </div>
+          <p class="text-sm text-[#9e8e80] mb-3">จำนวนการจอง</p>
           <p class="text-3xl font-bold text-[#2c2218]">{{ totalBookings }} <span class="text-base font-normal text-[#9e8e80]">รายการ</span></p>
           <div class="flex gap-3 mt-2 flex-wrap">
             <span class="text-xs text-amber-600">รอ {{ statusCounts.pending }}</span>
@@ -248,9 +258,7 @@ const paymentClass = s => ({
 
         <!-- แพ็คเกจยอดนิยม -->
         <div class="bg-white rounded-2xl border border-[#ede8e2] p-5">
-          <div class="flex items-center gap-3 mb-3">
-            <p class="text-xl text-[#9e8e80]">แพ็คเกจยอดนิยม</p>
-          </div>
+          <p class="text-sm text-[#9e8e80] mb-3">แพ็คเกจยอดนิยม</p>
           <p v-if="topPackage" class="text-xl font-bold text-[#2c2218] leading-tight">{{ topPackage.name }}</p>
           <p v-else class="text-sm text-[#9e8e80]">ยังไม่มีข้อมูล</p>
           <p v-if="topPackage" class="text-xs text-[#9e8e80] mt-1">{{ topPackage.count }} การจอง ({{ Math.round(topPackage.count / totalBookings * 100) || 0 }}% ของทั้งหมด)</p>
@@ -263,33 +271,27 @@ const paymentClass = s => ({
 
         <!-- ชำระแล้ว -->
         <div class="bg-white rounded-2xl border border-emerald-100 p-5">
-          <div class="flex items-center gap-3 mb-3">
-            <div>
-              <p class="text-xl text-[#9e8e80]">ชำระแล้ว</p>
-              <span class="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">{{ paymentCounts.paid }} รายการ</span>
-            </div>
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-sm text-[#9e8e80]">ชำระแล้ว</p>
+            <span class="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">{{ paymentCounts.paid }} รายการ</span>
           </div>
           <p class="text-2xl font-bold text-emerald-600">฿ {{ formatMoney(paidRevenue) }}</p>
         </div>
 
         <!-- มัดจำแล้ว -->
         <div class="bg-white rounded-2xl border border-orange-100 p-5">
-          <div class="flex items-center gap-3 mb-3">
-            <div>
-              <p class="text-xl text-[#9e8e80]">ชำระมัดจำ</p>
-              <span class="text-xs bg-orange-50 text-orange-600 border border-orange-200 px-2 py-0.5 rounded-full">{{ paymentCounts.deposit }} รายการ</span>
-            </div>
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-sm text-[#9e8e80]">ชำระมัดจำ</p>
+            <span class="text-xs bg-orange-50 text-orange-600 border border-orange-200 px-2 py-0.5 rounded-full">{{ paymentCounts.deposit }} รายการ</span>
           </div>
           <p class="text-2xl font-bold text-orange-500">฿ {{ formatMoney(depositRevenue) }}</p>
         </div>
 
         <!-- ยังไม่ชำระ -->
         <div class="bg-white rounded-2xl border border-[#ede8e2] p-5">
-          <div class="flex items-center gap-3 mb-3">
-            <div>
-              <p class="text-xl text-[#9e8e80]">ยังไม่ชำระ</p>
-              <span class="text-xs bg-gray-50 text-gray-500 border border-gray-200 px-2 py-0.5 rounded-full">{{ paymentCounts.unpaid }} รายการ</span>
-            </div>
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-sm text-[#9e8e80]">ยังไม่ชำระ</p>
+            <span class="text-xs bg-gray-50 text-gray-500 border border-gray-200 px-2 py-0.5 rounded-full">{{ paymentCounts.unpaid }} รายการ</span>
           </div>
           <p class="text-2xl font-bold text-gray-500">฿ {{ formatMoney(unpaidRevenue) }}</p>
         </div>
@@ -384,7 +386,7 @@ const paymentClass = s => ({
               </td>
               <td class="px-5 py-3 text-right text-sm font-semibold"
                 :class="b.status === 'cancelled' ? 'text-[#c5b9ac]' : 'text-[#2c2218]'">
-                {{ b.status === 'cancelled' ? '-' : `฿ ${formatMoney(b.package_price)}` }}
+                {{ b.status === 'cancelled' ? '-' : `฿ ${formatMoney(effectivePrice(b))}` }}
               </td>
             </tr>
             <tr v-if="tableRows.length === 0">

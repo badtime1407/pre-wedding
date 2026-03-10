@@ -46,9 +46,12 @@ booking.get("/my", authMiddleware, async (c) => {
   const result = await db
     .prepare(`
       SELECT bookings.*,
-             packages.name  AS package_name,
-             packages.price AS package_price,
-             packages.image_url
+             packages.name       AS package_name,
+             packages.price      AS package_price,
+             packages.image_url,
+             packages.sale_price AS package_sale_price,
+             packages.sale_start AS package_sale_start,
+             packages.sale_end   AS package_sale_end
       FROM bookings
       LEFT JOIN packages ON bookings.package_id = packages.id
       WHERE bookings.user_id = ?
@@ -78,8 +81,11 @@ booking.get("/", authMiddleware, async (c) => {
     .prepare(`
       SELECT bookings.*,
              users.email,
-             packages.name  AS package_name,
-             packages.price AS package_price
+             packages.name       AS package_name,
+             packages.price      AS package_price,
+             packages.sale_price AS package_sale_price,
+             packages.sale_start AS package_sale_start,
+             packages.sale_end   AS package_sale_end
       FROM bookings
       LEFT JOIN users    ON bookings.user_id    = users.id
       LEFT JOIN packages ON bookings.package_id = packages.id

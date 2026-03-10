@@ -42,7 +42,7 @@ const login = async () => {
 
     // ✅ redirect ตาม role
     if (payload.role === "admin") {
-      router.push("/admin")
+      router.push("/Admintimetable")
     } else {
       router.push("/")
     }
