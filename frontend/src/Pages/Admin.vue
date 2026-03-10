@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from "vue"
+import Sidebar from '../components/Sidebar.vue';
 
 const bookings = ref([])
 const packages = ref([])
@@ -62,6 +63,17 @@ async function loadPackages() {
   if (res.ok) packages.value = await res.json()
 }
 
+// ── ตรวจ slot ว่าถูกจองแล้วไหม (ยกเว้น booking ที่กำลังเลื่อนอยู่) ──
+function isSlotBooked(date, time) {
+  if (!date) return false
+  return bookings.value.some(b =>
+    b.date === date &&
+    b.time === time &&
+    b.status !== "cancelled" &&
+    b.id !== selectedBooking.value?.id
+  )
+}
+
 const counts = computed(() => ({
   all:         bookings.value.length,
   pending:     bookings.value.filter((b) => b.status === "pending").length,
@@ -93,10 +105,10 @@ const paginated  = computed(() => {
 
 function setFilter(s) { filterStatus.value = s; currentPage.value = 1 }
 
-function openDetail(b)          { selectedBooking.value = b; showDetail.value = true }
-function openConfirm(type, b)   { confirmAction.value = { type, booking: b }; showConfirm.value = true }
-function openAssign(b)          { selectedBooking.value = b; assignPkgId.value = b.package_id ?? null; assignNote.value = b.note ?? ""; showAssign.value = true }
-function openReschedule(b)      { selectedBooking.value = b; rescheduleDate.value = b.date ?? ""; rescheduleTime.value = b.time ?? ""; rescheduleError.value = ""; showReschedule.value = true }
+function openDetail(b)        { selectedBooking.value = b; showDetail.value = true }
+function openConfirm(type, b) { confirmAction.value = { type, booking: b }; showConfirm.value = true }
+function openAssign(b)        { selectedBooking.value = b; assignPkgId.value = b.package_id ?? null; assignNote.value = b.note ?? ""; showAssign.value = true }
+function openReschedule(b)    { selectedBooking.value = b; rescheduleDate.value = b.date ?? ""; rescheduleTime.value = b.time ?? ""; rescheduleError.value = ""; showReschedule.value = true }
 
 async function updateStatus(booking, newStatus) {
   const token = localStorage.getItem("token")
@@ -167,6 +179,9 @@ async function doReschedule() {
   if (!rescheduleDate.value || !rescheduleTime.value) {
     rescheduleError.value = "กรุณากรอกวันที่และเวลาให้ครบ"; return
   }
+  if (isSlotBooked(rescheduleDate.value, rescheduleTime.value)) {
+    rescheduleError.value = "วันและเวลานี้ถูกจองแล้ว"; return
+  }
   const token = localStorage.getItem("token")
   try {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/bookings/${selectedBooking.value.id}/reschedule`, {
@@ -198,8 +213,15 @@ const thaiMonths = ["มกราคม","กุมภาพันธ์","ม�
 function formatDate(d)      { if (!d) return "-"; const [y,m,dd] = d.split("-"); return `${parseInt(dd)} ${thaiMonths[parseInt(m)-1]} ${parseInt(y)+543}` }
 function formatDateShort(d) { if (!d) return "-"; const [y,m,dd] = d.split("-"); return `${parseInt(dd)} ${thaiShort[parseInt(m)-1]} ${parseInt(y)+543}` }
 
-const timeSlots = ["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00"]
-const chevron   = "background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 20 20%22 fill=%22%239e8e80%22><path fill-rule=%22evenodd%22 d=%22M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z%22 clip-rule=%22evenodd%22/></svg>'); background-position: right 4px center; background-size: 14px;"
+// ตรงกับ Booking.vue
+const timeSlots = [
+  "09:30 น. - 11:00 น.",
+  "11:30 น. - 13:00 น.",
+  "14:00 น. - 15:30 น.",
+  "16:00 น. - 17:30 น.",
+]
+
+const chevron = "background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 20 20%22 fill=%22%239e8e80%22><path fill-rule=%22evenodd%22 d=%22M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z%22 clip-rule=%22evenodd%22/></svg>'); background-position: right 4px center; background-size: 14px;"
 </script>
 
 <template>
@@ -277,7 +299,6 @@ const chevron   = "background-image: url('data:image/svg+xml,<svg xmlns=%22http:
               <span v-else class="text-[#c5b9ac] text-xs">-</span>
             </td>
 
-            <!-- PAYMENT DROPDOWN -->
             <td class="px-5 py-4" @click.stop>
               <select
                 :value="b.payment_status || 'unpaid'"
@@ -292,7 +313,6 @@ const chevron   = "background-image: url('data:image/svg+xml,<svg xmlns=%22http:
               </select>
             </td>
 
-            <!-- STATUS DROPDOWN -->
             <td class="px-5 py-4" @click.stop>
               <select
                 :value="b.status"
@@ -440,19 +460,44 @@ const chevron   = "background-image: url('data:image/svg+xml,<svg xmlns=%22http:
         </div>
         <button @click="showReschedule = false" class="w-7 h-7 rounded-full bg-[#f0ece7] hover:bg-[#e3dcd4] transition text-xs">✕</button>
       </div>
-      <div class="px-6 py-5 space-y-3">
-        <div>
-          <label class="block text-xs text-[#a08c7a] mb-1.5">วันที่ใหม่</label>
-          <input v-model="rescheduleDate" type="date" class="w-full border border-[#ddd5c8] rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9c7f5e]/30"/>
+      <div class="px-6 py-5 space-y-4">
+
+        <!-- นัดเดิม -->
+        <div class="bg-[#faf7f3] rounded-xl px-4 py-3 text-sm text-[#5a4a3a]">
+          <p class="text-xs text-[#9e8e80]">นัดเดิม: {{ formatDate(selectedBooking?.date) }} — {{ selectedBooking?.time }}</p>
         </div>
+
+        <!-- วันที่ใหม่ -->
         <div>
-          <label class="block text-xs text-[#a08c7a] mb-1.5">เวลาใหม่</label>
-          <select v-model="rescheduleTime" class="w-full border border-[#ddd5c8] rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9c7f5e]/30 bg-white">
-            <option value="" disabled>-- เลือกเวลา --</option>
-            <option v-for="t in timeSlots" :key="t" :value="t">{{ t }}</option>
-          </select>
+          <label class="block text-xs text-[#a08c7a] mb-1.5">วันที่ใหม่ <span class="text-red-400">*</span></label>
+          <input v-model="rescheduleDate" type="date"
+            class="w-full border border-[#ddd5c8] rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#9c7f5e]/30"/>
         </div>
+
+        <!-- เวลาใหม่ — ปุ่มเหมือน Booking.vue + disabled ถ้าถูกจองแล้ว -->
+        <div>
+          <label class="block text-xs text-[#a08c7a] mb-1.5">เวลาใหม่ <span class="text-red-400">*</span></label>
+          <div class="space-y-2">
+            <button
+              v-for="slot in timeSlots" :key="slot"
+              @click="!isSlotBooked(rescheduleDate, slot) && (rescheduleTime = slot)"
+              :disabled="isSlotBooked(rescheduleDate, slot)"
+              class="w-full py-2.5 rounded-xl text-sm font-medium border transition"
+              :class="[
+                rescheduleTime === slot
+                  ? 'bg-[#3d2f22] text-white border-transparent'
+                  : isSlotBooked(rescheduleDate, slot)
+                    ? 'bg-gray-100 text-gray-300 border-gray-100 cursor-not-allowed'
+                    : 'border-[#ddd5c8] hover:border-[#9c7f5e] hover:bg-[#faf7f3]'
+              ]">
+              {{ slot }}
+              <span v-if="isSlotBooked(rescheduleDate, slot)" class="text-xs ml-1">(จองแล้ว)</span>
+            </button>
+          </div>
+        </div>
+
         <p v-if="rescheduleError" class="text-xs text-red-500 bg-red-50 px-3 py-2 rounded-lg">{{ rescheduleError }}</p>
+
         <div class="flex gap-2 pt-1">
           <button @click="showReschedule = false" class="flex-1 py-2 rounded-xl border border-[#ddd5c8] text-sm hover:bg-[#faf7f3] transition">ยกเลิก</button>
           <button @click="doReschedule" class="flex-1 py-2 rounded-xl bg-[#3d2f22] text-white text-sm hover:bg-[#2c2218] transition">ยืนยันเลื่อนนัด</button>
@@ -461,6 +506,7 @@ const chevron   = "background-image: url('data:image/svg+xml,<svg xmlns=%22http:
     </div>
   </div>
 </Transition>
+
 
 <!-- TOAST -->
 <Transition enter-active-class="transition duration-300" enter-from-class="opacity-0 translate-y-2" leave-active-class="transition duration-200" leave-to-class="opacity-0 translate-y-2">
@@ -471,5 +517,4 @@ const chevron   = "background-image: url('data:image/svg+xml,<svg xmlns=%22http:
     {{ toast.msg }}
   </div>
 </Transition>
-
 </template>
