@@ -2,9 +2,9 @@
 import { ref, onMounted, onUnmounted } from "vue"
 
 const images = [
-  "/poster1.png",
-  "/poster2.png",
-  "/poster3.png"
+  "/1.png",
+  "/2.png",
+  "/3.png"
 ]
 
 const currentIndex = ref(0)
@@ -64,12 +64,12 @@ const gallery = [
 <template>
   <div>
     <!-- ================= Slider ================= -->
-    <section class="relative w-full h-100 mt-16 overflow-hidden">
+    <section class="relative w-full h-140 mt-16 overflow-hidden">
 
       <!-- รูป -->
       <img v-for="(img, index) in images" :key="index" :src="img"
-        class="absolute inset-0 w-full h-100 object-cover transition-opacity duration-1000"
-       :class="index === currentIndex ? 'opacity-100' : 'opacity-0'"/>
+        class="absolute inset-0 w-full h-140 object-cover transition-opacity duration-1000"
+       :class="index === currentIndex ? 'opacity-200' : 'opacity-0'"/>
 
       <!-- ปุ่มซ้าย -->
       <button @click="prevSlide" class="absolute left-5 top-1/2 -translate-y-1/2 hover:scale-110 transition">
