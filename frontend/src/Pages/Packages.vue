@@ -30,17 +30,20 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#f6f8f6] py-16 px-6">
+  <div class="min-h-screen bg-[#faf7f3] py-20 px-6">
 
-    <h1 class="text-4xl font-bold text-center mb-12">แพ็คเก็จการจัดงาน</h1>
+    <div class="text-center mb-14">
+      <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-[#2c2218]">แพ็คเกจการจัดงาน</h1>
+      <p class="text-sm text-[#9e8e80] mt-3">เลือกแพ็คเกจที่เหมาะกับงานของคุณ</p>
+    </div>
 
     <div v-if="error" class="text-center text-red-500">{{ error }}</div>
     <div v-if="!loading && packages.length === 0" class="text-center text-gray-500">ยังไม่มีแพ็คเกจ</div>
 
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-10 max-w-6xl mx-auto">
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
       <div
         v-for="pkg in packages" :key="pkg.id"
-        class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition duration-300 hover:-translate-y-1"
+        class="bg-white rounded-2xl border border-[#ede8e2] overflow-hidden hover:shadow-xl transition duration-300 hover:-translate-y-1"
       >
         <!-- Image -->
         <div class="relative">
@@ -52,18 +55,18 @@ onMounted(async () => {
         </div>
 
         <div class="p-6 space-y-4">
-          <h2 class="text-2xl font-semibold">{{ pkg.name }}</h2>
-          <p class="text-gray-600 text-sm line-clamp-3">{{ pkg.description }}</p>
+          <h2 class="text-xl font-semibold text-[#2c2218]">{{ pkg.name }}</h2>
+          <p class="text-[#8a7a6a] text-sm line-clamp-3">{{ pkg.description }}</p>
 
           <!-- ราคา -->
           <div v-if="isOnSale(pkg)" class="space-y-0.5">
             <div class="text-2xl font-bold text-rose-500">{{ Number(pkg.sale_price).toLocaleString() }} บาท</div>
             <div class="text-sm text-gray-400 line-through">ปกติ {{ pkg.price.toLocaleString() }} บาท</div>
           </div>
-          <div v-else class="text-2xl font-bold text-green-600">{{ pkg.price.toLocaleString() }} บาท</div>
+          <div v-else class="text-2xl font-bold text-[#2c2218]">{{ pkg.price.toLocaleString() }} บาท</div>
 
           <button @click="openPopup(pkg)"
-            class="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition duration-300">
+            class="w-full bg-[#3d2f22] text-white py-2.5 rounded-lg font-medium hover:bg-[#2c2218] transition duration-300">
             ดูรายละเอียด
           </button>
         </div>
@@ -73,11 +76,11 @@ onMounted(async () => {
     <!-- Popup -->
     <div
       v-if="selectedPackage"
-      class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4 animate-fadeIn"
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 px-4"
       @click.self="closePopup"
     >
       <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl p-8 relative max-h-[90vh] overflow-y-auto">
-        <button @click="closePopup" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 text-xl">✕</button>
+        <button @click="closePopup" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-[#f0ece7] hover:bg-[#e3dcd4] transition text-sm">✕</button>
 
         <img :src="selectedPackage.image_url" class="w-full h-72 object-cover object-[center_25%] rounded-xl mb-6"/>
 
@@ -86,8 +89,8 @@ onMounted(async () => {
           โปรโมชั่นพิเศษ ถึง {{ selectedPackage.sale_end }}
         </div>
 
-        <h2 class="text-3xl font-bold mb-4">{{ selectedPackage.name }}</h2>
-        <p class="whitespace-pre-line text-gray-600 leading-relaxed">{{ selectedPackage.description }}</p>
+        <h2 class="text-2xl font-bold mb-4 text-[#2c2218]">{{ selectedPackage.name }}</h2>
+        <p class="whitespace-pre-line text-[#8a7a6a] leading-relaxed">{{ selectedPackage.description }}</p>
 
         <!-- ราคาใน popup -->
         <div class="mt-6">
@@ -95,7 +98,7 @@ onMounted(async () => {
             <div class="text-3xl font-bold text-rose-500">{{ Number(selectedPackage.sale_price).toLocaleString() }} บาท</div>
             <div class="text-base text-gray-400 line-through mt-1">ปกติ {{ selectedPackage.price.toLocaleString() }} บาท</div>
           </div>
-          <div v-else class="text-3xl font-bold text-green-600">{{ selectedPackage.price.toLocaleString() }} บาท</div>
+          <div v-else class="text-3xl font-bold text-[#2c2218]">{{ selectedPackage.price.toLocaleString() }} บาท</div>
         </div>
       </div>
     </div>

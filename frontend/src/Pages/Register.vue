@@ -60,78 +60,78 @@ const register = async () => {
 
 <template>
     <div class="min-h-screen flex justify-end bg-[url('/BGlogin.png')] bg-cover bg-center">
-        <div class="bg-[#F0E7D7] min-h-screen w-1/2 p-10 flex justify-center">
-            
-            <div class="w-full max-w-md space-y-6">
-                
+        <div class="bg-[#F0E7D7] min-h-screen w-full md:w-1/2 p-6 sm:p-10 flex justify-center">
+
+            <div class="w-full max-w-md space-y-6 my-auto">
+
                 <div class="text-center">
-                    <h1 class="text-3xl font-bold">สมัครสมาชิก</h1>
-                    <p class="text-gray-600 mt-3">
+                    <h1 class="text-3xl font-bold text-[#2c2218]">สมัครสมาชิก</h1>
+                    <p class="text-[#7a6a5a] mt-3">
                         กรุณากรอกรายละเอียดของคุณเพื่อลงทะเบียน
                     </p>
                 </div>
 
                 <div class="space-y-4">
 
-                    <div class="mt-6">
-                        <label class="block text-sm mb-2 font-bold">บัญชีผู้ใช้</label>
+                    <div>
+                        <label class="block text-sm mb-2 font-bold text-[#2c2218]">บัญชีผู้ใช้</label>
                         <input
                             v-model="name"
                             type="text"
-                            class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white"
+                            class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#9c7f5e]/30"
                         />
                     </div>
 
-                    <div class="mt-6">
-                        <label class="block text-sm mb-2 font-bold">อีเมล</label>
+                    <div>
+                        <label class="block text-sm mb-2 font-bold text-[#2c2218]">อีเมล</label>
                         <input
                             v-model="email"
                             type="text"
-                            class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white"
+                            class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#9c7f5e]/30"
                         />
                     </div>
 
-                    <div class="mt-6">
-                        <label class="block text-sm font-bold mb-2">รหัสผ่าน</label>
+                    <div>
+                        <label class="block text-sm font-bold mb-2 text-[#2c2218]">รหัสผ่าน</label>
                         <div class="relative">
                             <input
                             v-model="password"
-                            :type="showConfirmPassword ? 'text' : 'password'"
-                            class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white"
-                            />
-                            <img
-                                :src="showConfirmPassword ? '/view.png' : '/hide.png'"
-                                @click="showConfirmPassword = !showConfirmPassword"
-                                class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 cursor-pointer"
-                            />
-                        </div>
-                        
-                    </div>
-
-                    <div class="mt-6">
-                        <label class="block text-sm font-bold mb-2">ยืนยันรหัสผ่าน</label>
-
-                        <div class="relative">
-                            <input
-                            v-model="confirmPassword"
                             :type="showPassword ? 'text' : 'password'"
-                            class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white"
+                            class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#9c7f5e]/30"
                             />
-
                             <img
                                 :src="showPassword ? '/view.png' : '/hide.png'"
                                 @click="showPassword = !showPassword"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 cursor-pointer"
                             />
                         </div>
-                        
+
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold mb-2 text-[#2c2218]">ยืนยันรหัสผ่าน</label>
+
+                        <div class="relative">
+                            <input
+                            v-model="confirmPassword"
+                            :type="showConfirmPassword ? 'text' : 'password'"
+                            class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#9c7f5e]/30"
+                            />
+
+                            <img
+                                :src="showConfirmPassword ? '/view.png' : '/hide.png'"
+                                @click="showConfirmPassword = !showConfirmPassword"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 cursor-pointer"
+                            />
+                        </div>
+
                     </div>
 
                     <!-- เปลี่ยนจาก RouterLink เป็น button -->
                     <button
                         @click="register"
                         :disabled="loading"
-                        class="block w-full py-3 rounded-lg bg-green-500 text-black text-lg font-semibold hover:bg-green-600 transition mt-10 text-center"
+                        class="block w-full py-3 rounded-lg bg-[#3d2f22] text-white text-lg font-semibold hover:bg-[#2c2218] transition mt-6 text-center disabled:opacity-60"
                     >
                         {{ loading ? "กำลังสมัคร..." : "ยืนยัน" }}
                     </button>
@@ -140,9 +140,9 @@ const register = async () => {
                         {{ error }}
                     </p>
 
-                    <p class="text-center text-sm text-gray-600 mt-5 font-bold">
+                    <p class="text-center text-sm text-[#7a6a5a] mt-5 font-bold">
                         มีบัญชีอยู่แล้ว ?
-                        <RouterLink to="/login" class="text-red-500 font-bold hover:underline">
+                        <RouterLink to="/login" class="text-[#3d2f22] font-bold hover:underline">
                             เข้าสู่ระบบ
                         </RouterLink>
                     </p>

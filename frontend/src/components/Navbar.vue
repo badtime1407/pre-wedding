@@ -194,7 +194,7 @@ function notifIcon(title) {
 </script>
 
 <template>
-  <nav class="h-18 bg-[#F0E7D7] shadow px-8 py-4 flex justify-between items-center">
+  <nav class="h-18 bg-[#F0E7D7] shadow-sm px-8 py-4 flex justify-between items-center sticky top-0 z-40">
 
     <!-- LOGO -->
     <img src="/Logo.png" class="h-16 object-contain" />
@@ -263,7 +263,7 @@ function notifIcon(title) {
     <!-- RIGHT SIDE -->
     <div>
       <RouterLink v-if="!isLoggedIn" to="/login"
-        class="bg-green-500 text-white px-4 py-2 rounded">
+        class="bg-[#3d2f22] text-white px-5 py-2.5 rounded-lg font-medium hover:bg-[#2c2218] transition">
         เข้าสู่ระบบ
       </RouterLink>
 

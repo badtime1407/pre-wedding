@@ -177,18 +177,21 @@ function closeModal() {
 </script>
 
 <template>
-  <div class="bg-white min-h-screen p-8 mt-8">
+  <div class="bg-[#faf7f3] min-h-screen py-16 px-4">
 
-    <h1 class="text-center text-3xl font-bold mb-14">
-      นัดหมายปรึกษา
-    </h1>
+    <div class="text-center mb-14">
+      <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-[#2c2218]">
+        นัดหมายปรึกษา
+      </h1>
+      <p class="text-sm text-[#9e8e80] mt-3">เลือกวันและเวลาที่คุณสะดวก ทีมงานจะติดต่อกลับเพื่อยืนยัน</p>
+    </div>
 
-    <div class="max-w-5xl mx-auto flex justify-center gap-16">
+    <div class="max-w-5xl mx-auto flex flex-wrap justify-center gap-16">
 
       <!-- CALENDAR -->
       <div>
-        <p class="mb-3 font-medium">เลือกวันที่</p>
-        <div class="bg-white rounded-xl border shadow-md p-8 w-110 h-100">
+        <p class="mb-3 font-medium text-[#2c2218]">เลือกวันที่</p>
+        <div class="bg-white rounded-2xl border border-[#ede8e2] shadow-sm p-8 w-110 h-100">
 
           <div class="flex justify-between items-center mb-4">
             <button @click="prevMonth" class="text-xl font-bold hover:text-gray-600">‹</button>
@@ -216,7 +219,7 @@ function closeModal() {
               @click="!isDateFullyBooked(fullDate(day)) && selectDate(day)"
               class="h-9 rounded-full text-sm transition"
               :class="{
-                'bg-black text-white':
+                'bg-[#3d2f22] text-white':
                   selectedDate?.endsWith('-' + String(day).padStart(2,'0')),
                 'bg-gray-200 text-gray-400 cursor-not-allowed':
                   isDateFullyBooked(fullDate(day))
@@ -230,7 +233,7 @@ function closeModal() {
 
       <!-- TIME -->
       <div class="w-72">
-        <p class="mb-6 font-medium">เลือกเวลา</p>
+        <p class="mb-6 font-medium text-[#2c2218]">เลือกเวลา</p>
 
         <div class="space-y-8">
           <button
@@ -254,7 +257,7 @@ function closeModal() {
 
         <button
           @click="submitBooking"
-          class="w-full mt-10 py-3 rounded-xl bg-[#e7dcc7] font-medium hover:opacity-80 transition"
+          class="w-full mt-10 py-3 rounded-xl bg-[#3d2f22] text-white font-medium hover:bg-[#2c2218] transition"
         >
           ยืนยัน
         </button>
@@ -263,11 +266,11 @@ function closeModal() {
 
     <!-- CUSTOMER MODAL -->
     <div v-if="showCustomerForm"
-         class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+         class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
 
-      <div class="bg-white rounded-xl shadow-xl p-8 w-96 animate-fade">
+      <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm animate-fade">
 
-        <h2 class="text-lg font-semibold mb-6 text-center">
+        <h2 class="text-lg font-semibold mb-6 text-center text-[#2c2218]">
           กรอกข้อมูลติดต่อ
         </h2>
 
@@ -275,22 +278,22 @@ function closeModal() {
           <input v-model="customerName"
                  type="text"
                  placeholder="ชื่อ-นามสกุล"
-                 class="w-full border rounded-lg px-4 py-2"/>
+                 class="w-full border border-[#ddd5c8] rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#9c7f5e]/30"/>
 
           <input v-model="customerPhone"
                  type="tel"
                  placeholder="เบอร์โทรศัพท์"
-                 class="w-full border rounded-lg px-4 py-2"/>
+                 class="w-full border border-[#ddd5c8] rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#9c7f5e]/30"/>
         </div>
 
         <div class="flex justify-end gap-3 mt-6">
           <button @click="showCustomerForm = false"
-                  class="px-4 py-2 rounded-lg bg-gray-200">
+                  class="px-4 py-2 rounded-lg border border-[#ddd5c8] hover:bg-[#faf7f3] transition">
             ยกเลิก
           </button>
 
           <button @click="confirmCustomerInfo"
-                  class="px-4 py-2 rounded-lg bg-[#e7dcc7]">
+                  class="px-4 py-2 rounded-lg bg-[#3d2f22] text-white hover:bg-[#2c2218] transition">
             ยืนยัน
           </button>
         </div>
@@ -299,20 +302,20 @@ function closeModal() {
 
     <!-- SUCCESS MODAL -->
     <div v-if="showSuccess"
-         class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+         class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
 
-      <div class="bg-white rounded-xl shadow-xl px-10 py-8 text-center w-80 animate-fade">
+      <div class="bg-white rounded-2xl shadow-xl px-10 py-8 text-center w-full max-w-xs animate-fade">
 
-        <div class="mx-auto mb-4 w-14 h-14 flex items-center justify-center rounded-full bg-green-500 text-white text-2xl">
+        <div class="mx-auto mb-4 w-14 h-14 flex items-center justify-center rounded-full bg-emerald-500 text-white text-2xl">
           ✓
         </div>
 
-        <p class="font-medium text-lg mb-6">
+        <p class="font-medium text-lg mb-6 text-[#2c2218]">
           ยืนยันการนัดหมายเสร็จสิ้น
         </p>
 
         <button @click="closeModal"
-                class="px-6 py-2 rounded-lg bg-gray-200">
+                class="px-6 py-2 rounded-lg border border-[#ddd5c8] hover:bg-[#faf7f3] transition">
           ปิด
         </button>
       </div>

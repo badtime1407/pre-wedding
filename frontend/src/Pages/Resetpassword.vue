@@ -64,41 +64,41 @@ const resetPassword = async () => {
 
 <template>
   <div class="min-h-screen flex justify-end bg-[url('/BGlogin.png')] bg-cover bg-center">
-    <div class="bg-[#F0E7D7] min-h-screen w-1/2 p-10 flex justify-center">
+    <div class="bg-[#F0E7D7] min-h-screen w-full md:w-1/2 p-6 sm:p-10 flex justify-center">
 
       <!-- กล่องเนื้อหา -->
-      <div class="w-full max-w-md space-y-6">
+      <div class="w-full max-w-md space-y-6 my-auto">
 
         <!-- ข้อความ -->
         <div class="text-center">
-          <h1 class="text-3xl font-bold">เปลี่ยนรหัสผ่าน</h1>
-          <p class="text-gray-600 mt-3">
-            กรอกขอมูลของคุณเพื่อเปลี่ยนรหัสผ่าน
+          <h1 class="text-3xl font-bold text-[#2c2218]">เปลี่ยนรหัสผ่าน</h1>
+          <p class="text-[#7a6a5a] mt-3">
+            กรอกข้อมูลของคุณเพื่อเปลี่ยนรหัสผ่าน
           </p>
         </div>
 
         <!-- ช่องรับข้อมูล -->
         <div class="space-y-4">
 
-          <div class="mt-15">
-            <label class="block text-sm mb-2 font-bold">
+          <div>
+            <label class="block text-sm mb-2 font-bold text-[#2c2218]">
               บัญชีผู้ใช้ / อีเมล
             </label>
             <input
               v-model="identifier"
               type="text"
-              class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white"
+              class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#9c7f5e]/30"
             />
           </div>
 
-          <div class="mt-10">
-            <label class="block text-sm font-bold mb-2">
+          <div>
+            <label class="block text-sm font-bold mb-2 text-[#2c2218]">
               รหัสผ่านใหม่
             </label>
             <div class="relative">
-            <input v-model="newPassword" 
-            :type="showNewPassword ? 'text' : 'password'" 
-            class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white pr-12"/>
+            <input v-model="newPassword"
+            :type="showNewPassword ? 'text' : 'password'"
+            class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white pr-12 focus:outline-none focus:ring-2 focus:ring-[#9c7f5e]/30"/>
 
             <img
                 :src="showNewPassword ? '/view.png' : '/hide.png'"
@@ -109,15 +109,15 @@ const resetPassword = async () => {
 
             </div>
 
-          <div class="mt-10">
-            <label class="block text-sm font-bold mb-2">
+          <div>
+            <label class="block text-sm font-bold mb-2 text-[#2c2218]">
               ยืนยันรหัสผ่านใหม่
             </label>
             <div class="relative">
                 <input
                     v-model="confirmPassword"
                     :type="showConfirmPassword ? 'text' : 'password'"
-                    class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white pr-12"
+                    class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white pr-12 focus:outline-none focus:ring-2 focus:ring-[#9c7f5e]/30"
                 />
 
                 <img
@@ -132,7 +132,7 @@ const resetPassword = async () => {
           <button
             @click="resetPassword"
             :disabled="loading"
-            class="block w-full py-3 rounded-lg bg-green-500 text-black text-lg font-semibold hover:bg-green-600 transition mt-10 text-center"
+            class="block w-full py-3 rounded-lg bg-[#3d2f22] text-white text-lg font-semibold hover:bg-[#2c2218] transition mt-6 text-center disabled:opacity-60"
           >
             {{ loading ? "กำลังเปลี่ยน..." : "ยืนยัน" }}
           </button>
@@ -142,11 +142,11 @@ const resetPassword = async () => {
             {{ error }}
           </p>
 
-          <p class="text-center text-sm text-gray-600 mt-5 font-bold">
+          <p class="text-center text-sm text-[#7a6a5a] mt-5 font-bold">
             ต้องการเข้าสู่ระบบใช่ไหม ?
             <RouterLink
               to="/Login"
-              class="text-red-500 font-bold hover:underline"
+              class="text-[#3d2f22] font-bold hover:underline"
             >
               เข้าสู่ระบบ
             </RouterLink>

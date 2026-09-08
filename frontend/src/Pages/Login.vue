@@ -57,35 +57,35 @@ const login = async () => {
 
 <template>
     <div class="min-h-screen flex justify-end bg-[url('/BGlogin.png')] bg-cover bg-center">
-        <div class="bg-[#F0E7D7] min-h-screen w-1/2 p-10 flex justify-center">
-            
-            <div class="w-full max-w-md space-y-6">
-                
+        <div class="bg-[#F0E7D7] min-h-screen w-full md:w-1/2 p-6 sm:p-10 flex justify-center">
+
+            <div class="w-full max-w-md space-y-6 my-auto">
+
                 <div class="text-center">
-                    <h1 class="text-3xl font-bold">เข้าสู่ระบบ</h1>
-                    <p class="text-gray-600 mt-3">
+                    <h1 class="text-3xl font-bold text-[#2c2218]">เข้าสู่ระบบ</h1>
+                    <p class="text-[#7a6a5a] mt-3">
                         กรอกข้อมูลของคุณเพื่อเข้าสู่ระบบ
                     </p>
                 </div>
 
                 <div class="space-y-4">
 
-                    <div class="mt-15">
-                        <label class="block text-sm mb-2 font-bold">บัญชีผู้ใช้ / อีเมล</label>
+                    <div>
+                        <label class="block text-sm mb-2 font-bold text-[#2c2218]">บัญชีผู้ใช้ / อีเมล</label>
                         <input
                             v-model="email"
                             type="text"
-                            class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white"
+                            class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#9c7f5e]/30"
                         />
                     </div>
 
-                    <div class="mt-10">
-                        <label class="block text-sm font-bold mb-2">รหัสผ่าน</label>
+                    <div>
+                        <label class="block text-sm font-bold mb-2 text-[#2c2218]">รหัสผ่าน</label>
                         <div class="relative">
                             <input
                             v-model="password"
                             :type="showPassword ? 'text' : 'password'"
-                            class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white"/>
+                            class="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#9c7f5e]/30"/>
 
                             <img
                                 :src="showPassword ? '/view.png' : '/hide.png'"
@@ -97,7 +97,7 @@ const login = async () => {
                     </div>
 
                     <div class="text-right mt-2">
-                        <RouterLink to="/Resetpassword" class="text-sm text-red-400 hover:underline font-bold">
+                        <RouterLink to="/Resetpassword" class="text-sm text-[#9c7f5e] hover:text-[#3d2f22] font-bold transition">
                             ลืมรหัสผ่าน
                         </RouterLink>
                     </div>
@@ -106,9 +106,9 @@ const login = async () => {
                     <button
                         @click="login"
                         :disabled="loading"
-                        class="block w-full py-3 rounded-lg bg-green-500 text-black text-lg font-semibold hover:bg-green-600 transition mt-2 text-center"
+                        class="block w-full py-3 rounded-lg bg-[#3d2f22] text-white text-lg font-semibold hover:bg-[#2c2218] transition mt-2 text-center disabled:opacity-60"
                     >
-                        {{ loading ? "เข้าสู่ระบบ" : "เข้าสู่ระบบ" }}
+                        {{ loading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ" }}
                     </button>
 
                     <!-- แสดง error -->
@@ -116,9 +116,9 @@ const login = async () => {
                         {{ error }}
                     </p>
 
-                    <p class="text-center text-sm text-gray-600 mt-5 font-bold">
+                    <p class="text-center text-sm text-[#7a6a5a] mt-5 font-bold">
                         ยังไม่มีบัญชี ?
-                        <RouterLink to="/Register" class="text-red-500 font-bold hover:underline">
+                        <RouterLink to="/Register" class="text-[#3d2f22] font-bold hover:underline">
                             สมัครสมาชิก
                         </RouterLink>
                     </p>
